@@ -1484,7 +1484,7 @@
     "m_Hidden": false,
     "m_ShaderOutputName": "Scale",
     "m_StageCapability": 3,
-    "m_Value": 1000.0,
+    "m_Value": 59.0,
     "m_DefaultValue": 500.0,
     "m_Labels": []
 }
@@ -2008,8 +2008,8 @@
     "m_ObjectId": "d790fe2fb7bd4365809f6935c4d30ce2",
     "m_Title": "Noise",
     "m_Position": {
-        "x": -1496.0,
-        "y": 758.0000610351563
+        "x": -1495.9998779296875,
+        "y": 757.9999389648438
     }
 }
 
@@ -2131,8 +2131,8 @@
     "m_ObjectId": "e424ea80b8e44d5db62dcc613ee4c867",
     "m_Title": "Hologram",
     "m_Position": {
-        "x": -1013.0000610351563,
-        "y": 114.0
+        "x": -1012.9999389648438,
+        "y": 114.00004577636719
     }
 }
 

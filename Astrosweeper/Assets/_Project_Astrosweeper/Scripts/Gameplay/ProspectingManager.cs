@@ -34,7 +34,10 @@ public class ProspectingManager : MonoBehaviour
     {
         GameManager.OnGameStateChanged += HandleGameStateChange;
         GenerateAndSetupGrid();
-        hexGridContainer.SetActive(false);
+        
+        // La cuadrícula comienza invisible, pero los objetos siguen activos.
+        // La lógica de visibilidad se delega a HandleGameStateChange.
+        // El estado inicial de GameManager (Exploration) se encargará de ocultarla correctamente.
     }
 
     private void OnDestroy()
@@ -47,10 +50,9 @@ public class ProspectingManager : MonoBehaviour
 
     private void HandleGameStateChange(GameState newState)
     {
-        if (hexGridContainer != null)
-        {
-            hexGridContainer.SetActive(newState == GameState.Prospecting);
-        }
+        // En lugar de activar/desactivar el contenedor, controlamos la visibilidad de cada tesela.
+        // Esto mantiene los colliders activos para la detección de proximidad.
+        SetGridVisibility(newState == GameState.Prospecting);
     }
 
     void GenerateAndSetupGrid()
@@ -59,14 +61,15 @@ public class ProspectingManager : MonoBehaviour
         List<HexTile> safeZoneTiles = GetSafeZoneTiles();
         PlaceTraps(safeZoneTiles);
         CalculateDangerValues();
-        RevealStartingArea();
-
+        
         foreach (var tile in hexGrid.Values)
         {
             tile.UpdateVisuals();
         }
-    }
 
+        RevealStartingArea();
+    }
+    
     public void RevealTile(HexTile tile)
     {
         if (tile == null || tile.isRevealed || tile.isFlagged) return;
@@ -83,27 +86,45 @@ public class ProspectingManager : MonoBehaviour
         }
     }
 
+    private void SetGridVisibility(bool isVisible)
+    {
+        // Si el contenedor está nulo, no hacemos nada.
+        if(hexGridContainer == null) return;
+
+        if (isVisible)
+        {
+            foreach (var tile in hexGrid.Values)
+            {
+                // Al hacerse visible, cada tesela decide cómo debe verse según su estado actual.
+                tile.UpdateVisuals();
+            }
+        }
+        else
+        {
+            foreach (var tile in hexGrid.Values)
+            {
+                // Al ocultarse, simplemente apagamos todos los renderers.
+                tile.SetVisible(false);
+            }
+        }
+    }
+    
+    // --- El resto de los métodos se queda igual ---
     private List<HexTile> GetSafeZoneTiles()
     {
         List<HexTile> safeTiles = new List<HexTile>();
         Vector3Int centerCube = Vector3Int.zero;
-
         foreach (HexTile tile in hexGrid.Values)
         {
             int q = tile.axialCoords.x;
             int r = tile.axialCoords.y;
             Vector3Int tileCube = new Vector3Int(q, r, -q - r);
-            
-            int distance = (Mathf.Abs(centerCube.x - tileCube.x) 
-                          + Mathf.Abs(centerCube.y - tileCube.y) 
-                          + Mathf.Abs(centerCube.z - tileCube.z)) / 2;
-            
+            int distance = (Mathf.Abs(centerCube.x - tileCube.x) + Mathf.Abs(centerCube.y - tileCube.y) + Mathf.Abs(centerCube.z - tileCube.z)) / 2;
             if (distance <= safeZoneRadius)
             {
                 safeTiles.Add(tile);
             }
         }
-        
         return safeTiles;
     }
     
@@ -131,6 +152,7 @@ public class ProspectingManager : MonoBehaviour
     {
         foreach (Transform child in hexGridContainer.transform) { Destroy(child.gameObject); }
         hexGrid.Clear();
+        
         float hexInnerRadius = hexOuterRadius * Mathf.Sqrt(3) / 2;
         for (int q = -gridRadius; q <= gridRadius; q++)
         {

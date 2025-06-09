@@ -12,15 +12,13 @@ public class PlayerController : MonoBehaviour
 
     // --- Referencias de Componentes ---
     private PlayerMovement playerMovement;
-    private PlayerInput playerInput; // Para acceder a las acciones de input
 
     // --- Estado ---
-    private HexTile currentTargetTile; // La tesela que tenemos en rango para interactuar
+    private HexTile currentTargetTile;
 
     private void Awake()
     {
         playerMovement = GetComponent<PlayerMovement>();
-        playerInput = GetComponent<PlayerInput>(); // Obtenemos la referencia al componente PlayerInput
     }
 
     private void OnEnable()
@@ -35,25 +33,16 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        // Solo buscamos teselas si estamos en modo prospección
         if (GameManager.Instance.CurrentState == GameState.Prospecting)
         {
             FindClosestTile();
         }
         else
         {
-            // Si no estamos en modo prospección, nos aseguramos de no tener ninguna tesela seleccionada
-            if (currentTargetTile != null)
-            {
-                // TODO: Lógica para 'des-resaltar' la tesela visualmente
-                currentTargetTile = null;
-            }
+            currentTargetTile = null;
         }
     }
 
-    /// <summary>
-    /// Detecta la tesela más cercana al jugador dentro de un radio.
-    /// </summary>
     private void FindClosestTile()
     {
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, interactionRadius, tileLayer);
@@ -69,19 +58,9 @@ public class PlayerController : MonoBehaviour
                 closestTile = hitCollider.GetComponent<HexTile>();
             }
         }
-
-        if (currentTargetTile != closestTile)
-        {
-            // TODO: Lógica para resaltar el nuevo 'closestTile' y des-resaltar el anterior 'currentTargetTile'
-            // Debug.Log($"Nuevo objetivo: {closestTile?.name ?? "Ninguno"}");
-        }
-        
         currentTargetTile = closestTile;
     }
 
-    /// <summary>
-    /// Método llamado por el PlayerInput cuando se presiona la tecla de cambiar modo.
-    /// </summary>
     public void OnToggleProspecting(InputAction.CallbackContext context)
     {
         if (context.performed)
@@ -90,33 +69,42 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Método llamado por el PlayerInput cuando se presiona la tecla de Desarmar/Revelar.
-    /// </summary>
     public void OnDisarm(InputAction.CallbackContext context)
     {
-        // Solo actúa si se presionó la tecla, estamos en modo prospección y tenemos una tesela en rango
-        if (context.performed && currentTargetTile != null && GameManager.Instance.CurrentState == GameState.Prospecting)
+        if (!context.performed) return;
+
+        Debug.Log("Se presionó la tecla de Desarmar.");
+        if (GameManager.Instance.CurrentState != GameState.Prospecting)
         {
-            Debug.Log($"Acción 'Desarmar' sobre la tesela: {currentTargetTile.name}");
-            
-            // Le pedimos al manager que se encargue de la lógica de revelar la tesela
-            ProspectingManager.Instance.RevealTile(currentTargetTile);
+            Debug.Log("Intento de desarme fallido: No estamos en Modo Prospección.");
+            return;
         }
+        if (currentTargetTile == null)
+        {
+            Debug.Log("Intento de desarme fallido: No hay ninguna tesela en el rango de interacción.");
+            return;
+        }
+        
+        Debug.Log($"Éxito. Enviando orden de revelar para: {currentTargetTile.name}");
+        ProspectingManager.Instance.RevealTile(currentTargetTile);
     }
 
-    /// <summary>
-    /// Escucha los cambios de estado del juego para activar/desactivar la lógica correspondiente.
-    /// </summary>
     private void HandleGameStateChange(GameState newState)
     {
-        // El movimiento del jugador solo está activo en modo exploración
         playerMovement.enabled = (newState == GameState.Exploration);
-
-        // Si salimos del modo prospección, limpiamos la tesela objetivo
         if (newState != GameState.Prospecting)
         {
             currentTargetTile = null;
         }
+    }
+
+    /// <summary>
+    /// Este método especial de Unity dibuja Gizmos en el Editor de la Escena.
+    /// Solo se dibuja cuando el objeto está seleccionado.
+    /// </summary>
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, interactionRadius);
     }
 }

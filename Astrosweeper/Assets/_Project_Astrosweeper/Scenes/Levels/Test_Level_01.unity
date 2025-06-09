@@ -278,6 +278,10 @@ PrefabInstance:
       propertyPath: m_ActionEvents.Array.data[1].m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
+    - target: {fileID: 4736629785226461007, guid: 05b926eeed9a6ff4b8e01c22badca291, type: 3}
+      propertyPath: tileLayer.m_Bits
+      value: 64
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -336,7 +340,7 @@ MonoBehaviour:
     AngularDampingMode: 1
     RotationDamping: {x: 1, y: 1, z: 1}
     QuaternionDamping: 0.4
-  FollowOffset: {x: 0, y: 5, z: -8}
+  FollowOffset: {x: 0, y: 8.8, z: -1.51}
 --- !u!114 &318095611
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -388,8 +392,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 318095608}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.27568254, y: 0, z: 0, w: 0.96124876}
-  m_LocalPosition: {x: 0, y: 8, z: -8}
+  m_LocalRotation: {x: 0.6445466, y: 0, z: 0, w: 0.764565}
+  m_LocalPosition: {x: 0, y: 11.8, z: -1.51}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -802,8 +806,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1134024263}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.27568254, y: 0, z: 0, w: 0.96124876}
-  m_LocalPosition: {x: 0, y: 8, z: -8}
+  m_LocalRotation: {x: 0.6445466, y: 0, z: 0, w: 0.764565}
+  m_LocalPosition: {x: 0, y: 11.8, z: -1.51}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

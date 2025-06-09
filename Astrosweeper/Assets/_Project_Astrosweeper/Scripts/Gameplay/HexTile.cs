@@ -11,12 +11,14 @@ public class HexTile : MonoBehaviour
     [SerializeField] private Color flaggedColor = Color.cyan;
     [SerializeField] private Color trapColor = Color.red;
 
+    // Propiedades de la tesela
     public Vector2Int axialCoords;
     public bool isTrap = false;
     public bool isRevealed = false;
     public bool isFlagged = false;
     public int dangerValue = 0;
 
+    // Componentes y referencias
     private MeshRenderer meshRenderer;
     private HeatMapController heatMapController;
     private MaterialPropertyBlock propertyBlock;
@@ -43,35 +45,49 @@ public class HexTile : MonoBehaviour
 
     public void UpdateVisuals()
     {
-        // Si no estamos revelados, nos aseguramos de ser visibles con el color por defecto/marcado.
         if (!isRevealed)
         {
-            meshRenderer.enabled = true;
+            SetVisible(true);
             Color initialColor = isFlagged ? flaggedColor : defaultColor;
-            propertyBlock.SetColor(colorPropertyName, initialColor);
-            meshRenderer.SetPropertyBlock(propertyBlock);
+            ApplyColor(initialColor);
             return;
         }
 
-        // Si estamos revelados...
         if (isTrap)
         {
-            meshRenderer.enabled = true;
-            propertyBlock.SetColor(colorPropertyName, trapColor);
+            SetVisible(true);
+            ApplyColor(trapColor);
         }
         else if (dangerValue == 0)
         {
-            // ¡La lógica clave! Si el valor es 0, el renderer se desactiva.
-            meshRenderer.enabled = false;
-            return; // Salimos para no aplicar ningún color.
+            SetVisible(false);
         }
         else // dangerValue > 0
         {
-            meshRenderer.enabled = true;
+            SetVisible(true);
             Color dangerColor = heatMapController.GetColorForValue(dangerValue);
-            propertyBlock.SetColor(colorPropertyName, dangerColor);
+            ApplyColor(dangerColor);
         }
-        
+    }
+
+    /// <summary>
+    /// Aplica un color específico a la tesela usando un MaterialPropertyBlock.
+    /// </summary>
+    private void ApplyColor(Color color)
+    {
+        meshRenderer.GetPropertyBlock(propertyBlock);
+        propertyBlock.SetColor(colorPropertyName, color);
         meshRenderer.SetPropertyBlock(propertyBlock);
+    }
+
+    /// <summary>
+    /// Controla la visibilidad de esta tesela específica habilitando/deshabilitando su MeshRenderer.
+    /// </summary>
+    public void SetVisible(bool visible)
+    {
+        if (meshRenderer != null)
+        {
+            meshRenderer.enabled = visible;
+        }
     }
 }
