@@ -15,7 +15,6 @@ GameObject:
   - component: {fileID: 7630373279285130437}
   - component: {fileID: 6189136891227812589}
   - component: {fileID: -6669625683371186555}
-  - component: {fileID: 6496414088514264999}
   m_Layer: 0
   m_Name: HexTile_Temp
   m_TagString: Untagged
@@ -872,23 +871,3 @@ MonoBehaviour:
   isRevealed: 0
   isFlagged: 0
   dangerValue: 0
---- !u!114 &6496414088514264999
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5550679679908875103}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1969adc49251a674aba14dbfe15740f6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tileRenderer: {fileID: 15569904226897832}
-  colorSafe: {r: 0, g: 1, b: 1, a: 1}
-  color1Trap: {r: 0, g: 0, b: 1, a: 1}
-  color2Traps: {r: 0, g: 1, b: 0, a: 1}
-  color3Traps: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  color4Traps: {r: 1, g: 0.5, b: 0, a: 1}
-  color5Traps: {r: 1, g: 0, b: 0, a: 1}
-  color6Traps: {r: 1, g: 0, b: 1, a: 1}

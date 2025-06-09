@@ -547,7 +547,7 @@
     "m_Type": "UnityEditor.ShaderGraph.Vector4MaterialSlot",
     "m_ObjectId": "1768eee2528c459288c834777f1635ac",
     "m_Id": 0,
-    "m_DisplayName": "BaseColor",
+    "m_DisplayName": "Color",
     "m_SlotType": 1,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
@@ -1334,11 +1334,11 @@
     "m_Guid": {
         "m_GuidSerialized": "01df3220-3ad5-4b1f-8b48-1ddbfe93ce7e"
     },
-    "m_Name": "BaseColor",
+    "m_Name": "Color",
     "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "BaseColor",
-    "m_DefaultReferenceName": "_BaseColor",
-    "m_OverrideReferenceName": "",
+    "m_RefNameGeneratedByDisplayName": "Color",
+    "m_DefaultReferenceName": "_Color",
+    "m_OverrideReferenceName": "_Color",
     "m_GeneratePropertyBlock": true,
     "m_UseCustomSlotLabel": false,
     "m_CustomSlotLabel": "",
@@ -1598,7 +1598,7 @@
     "m_AlphaMode": 0,
     "m_RenderFace": 2,
     "m_AlphaClip": false,
-    "m_CastShadows": true,
+    "m_CastShadows": false,
     "m_ReceiveShadows": true,
     "m_DisableTint": false,
     "m_AdditionalMotionVectorMode": 0,
@@ -2009,7 +2009,7 @@
     "m_Title": "Noise",
     "m_Position": {
         "x": -1496.0,
-        "y": 757.9999389648438
+        "y": 758.0000610351563
     }
 }
 
@@ -2131,8 +2131,8 @@
     "m_ObjectId": "e424ea80b8e44d5db62dcc613ee4c867",
     "m_Title": "Hologram",
     "m_Position": {
-        "x": -1012.9999389648438,
-        "y": 113.99998474121094
+        "x": -1013.0000610351563,
+        "y": 114.0
     }
 }
 
