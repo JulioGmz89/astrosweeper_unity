@@ -1,11 +1,15 @@
-// Guardar en: Assets/_Project_StarSweep/Scripts/Player/PlayerController.cs
-
 using UnityEngine;
 using UnityEngine.InputSystem; // ¡Importante añadir esto!
 
 public class PlayerController : MonoBehaviour
 {
-    // private PlayerMovement playerMovement; 
+    private PlayerMovement playerMovement; 
+
+    private void Awake()
+    {
+        // Obtenemos la referencia al script de movimiento
+        playerMovement = GetComponent<PlayerMovement>();
+    }
 
     private void OnEnable()
     {
@@ -32,12 +36,12 @@ public class PlayerController : MonoBehaviour
     {
         if (newState == GameState.Exploration)
         {
-            // playerMovement.enabled = true;
+            playerMovement.enabled = true; // ACTIVAMOS el movimiento
             Debug.Log("Controlador del jugador: MODO EXPLORACIÓN ACTIVADO.");
         }
         else if (newState == GameState.Prospecting)
         {
-            // playerMovement.enabled = false;
+            playerMovement.enabled = false; // DESACTIVAMOS el movimiento
             Debug.Log("Controlador del jugador: MODO PROSPECCIÓN ACTIVADO.");
         }
     }
