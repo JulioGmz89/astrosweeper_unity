@@ -1,9 +1,11 @@
 using UnityEngine;
 
-public enum GameState 
+public enum GameState
 {
     Exploration, // Movimiento libre en 3D
-    Prospecting  // Interfaz de Buscaminas holográfica
+    Prospecting,  // Interfaz de Buscaminas holográfica
+    
+    TileSelection
 }
 
 public class GameManager : MonoBehaviour

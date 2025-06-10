@@ -11,12 +11,16 @@ public class ProspectingManager : MonoBehaviour
     [SerializeField] private HexTile hexTilePrefab;
     [SerializeField] private int gridRadius = 5;
     [SerializeField, Range(0, 1)] private float trapDensity = 0.15f;
-    [Tooltip("El radio alrededor de la tesela (0,0) que estará garantizado sin trampas.")]
     [SerializeField] private int safeZoneRadius = 1;
 
     [Header("System References")]
     [SerializeField] private HeatMapController heatMapController;
 
+    // --- ¡AQUÍ ESTÁ LA PROPIEDAD QUE FALTABA! ---
+    // Guardará una referencia a la tesela que el jugador tiene seleccionada en el modo de selección.
+    public HexTile CurrentlySelectedTile { get; private set; }
+    
+    // --- Variables Privadas ---
     private Dictionary<Vector2Int, HexTile> hexGrid = new Dictionary<Vector2Int, HexTile>();
     private float hexOuterRadius = 1f;
     private static readonly Vector2Int[] neighborDirections = {
@@ -34,10 +38,8 @@ public class ProspectingManager : MonoBehaviour
     {
         GameManager.OnGameStateChanged += HandleGameStateChange;
         GenerateAndSetupGrid();
-        
-        // La cuadrícula comienza invisible, pero los objetos siguen activos.
-        // La lógica de visibilidad se delega a HandleGameStateChange.
-        // El estado inicial de GameManager (Exploration) se encargará de ocultarla correctamente.
+        // El contenedor permanece activo, pero sus renderers se apagan.
+        SetGridVisibility(false);
     }
 
     private void OnDestroy()
@@ -50,9 +52,8 @@ public class ProspectingManager : MonoBehaviour
 
     private void HandleGameStateChange(GameState newState)
     {
-        // En lugar de activar/desactivar el contenedor, controlamos la visibilidad de cada tesela.
-        // Esto mantiene los colliders activos para la detección de proximidad.
-        SetGridVisibility(newState == GameState.Prospecting);
+        // Al cambiar de estado, actualizamos la visibilidad de la cuadrícula.
+        SetGridVisibility(newState == GameState.Prospecting || newState == GameState.TileSelection);
     }
 
     void GenerateAndSetupGrid()
@@ -88,14 +89,10 @@ public class ProspectingManager : MonoBehaviour
 
     private void SetGridVisibility(bool isVisible)
     {
-        // Si el contenedor está nulo, no hacemos nada.
-        if(hexGridContainer == null) return;
-
         if (isVisible)
         {
             foreach (var tile in hexGrid.Values)
             {
-                // Al hacerse visible, cada tesela decide cómo debe verse según su estado actual.
                 tile.UpdateVisuals();
             }
         }
@@ -103,10 +100,56 @@ public class ProspectingManager : MonoBehaviour
         {
             foreach (var tile in hexGrid.Values)
             {
-                // Al ocultarse, simplemente apagamos todos los renderers.
                 tile.SetVisible(false);
             }
         }
+    }
+
+    /// <summary>
+    /// Establece una nueva tesela como la seleccionada actualmente.
+    /// </summary>
+    public void SetSelectedTile(HexTile newTile)
+    {
+        if (newTile == null) return;
+        
+        // TODO: Lógica para des-resaltar la tesela anterior (CurrentlySelectedTile)
+        CurrentlySelectedTile = newTile;
+        // TODO: Lógica para aplicar un resaltado a la nueva tesela seleccionada
+        Debug.Log($"Nueva tesela seleccionada: {CurrentlySelectedTile.name}");
+    }
+
+    /// <summary>
+    /// Obtiene el vecino de una tesela en una dirección del input, considerando la rotación de la cámara.
+    /// </summary>
+    public HexTile GetNeighborInDirection(HexTile originTile, Vector2 direction)
+    {
+        if (originTile == null || direction.sqrMagnitude < 0.1f) return null;
+
+        Vector3 cameraForward = Camera.main.transform.forward;
+        cameraForward.y = 0;
+        cameraForward.Normalize();
+
+        Vector3 inputWorldDirection = (cameraForward * direction.y + Camera.main.transform.right * direction.x).normalized;
+
+        float maxDot = -1;
+        Vector2Int bestDirection = Vector2Int.zero;
+
+        foreach (Vector2Int hexDir in neighborDirections)
+        {
+            float x = hexOuterRadius * 1.5f * hexDir.x;
+            float z = (hexOuterRadius * Mathf.Sqrt(3) / 2) * 2 * (hexDir.y + hexDir.x / 2f);
+            Vector3 hexWorldDir = new Vector3(x, 0, z).normalized;
+
+            float dot = Vector3.Dot(inputWorldDirection, hexWorldDir);
+            if (dot > maxDot)
+            {
+                maxDot = dot;
+                bestDirection = hexDir;
+            }
+        }
+        
+        Vector2Int neighborCoord = originTile.axialCoords + bestDirection;
+        return hexGrid.TryGetValue(neighborCoord, out HexTile neighbor) ? neighbor : null;
     }
     
     // --- El resto de los métodos se queda igual ---

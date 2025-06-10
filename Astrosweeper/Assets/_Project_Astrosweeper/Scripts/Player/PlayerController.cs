@@ -1,24 +1,30 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Unity.Cinemachine;
 
-[RequireComponent(typeof(PlayerMovement))]
+[RequireComponent(typeof(PlayerMovement), typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
+    [Header("Camera Settings")]
+    [SerializeField] private CinemachineCamera playerCamera;
+    [SerializeField] private CinemachineCamera tileSelectionCamera;
+
     [Header("Interaction Settings")]
-    [Tooltip("Radio para detectar teselas cercanas al jugador.")]
     [SerializeField] private float interactionRadius = 2f;
-    [Tooltip("Asigna aquí la Layer que creaste para las teselas (ej. 'HexTile').")]
     [SerializeField] private LayerMask tileLayer;
 
     // --- Referencias de Componentes ---
     private PlayerMovement playerMovement;
+    private PlayerInput playerInput; // Referencia al componente PlayerInput
 
     // --- Estado ---
     private HexTile currentTargetTile;
+    private Vector2 moveInputVector; // NUEVA VARIABLE para guardar el input de movimiento
 
     private void Awake()
     {
         playerMovement = GetComponent<PlayerMovement>();
+        playerInput = GetComponent<PlayerInput>(); // Obtenemos la referencia
     }
 
     private void OnEnable()
@@ -33,13 +39,20 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (GameManager.Instance.CurrentState == GameState.Prospecting)
+        GameState currentState = GameManager.Instance.CurrentState;
+
+        // --- Lógica de Movimiento Continuo ---
+        if (currentState == GameState.Exploration)
+        {
+            // Leemos el valor del input en cada frame y se lo pasamos al PlayerMovement
+            moveInputVector = playerInput.actions["Move"].ReadValue<Vector2>();
+            playerMovement.ProcessMove(moveInputVector);
+        }
+
+        // --- Lógica de Detección de Teselas ---
+        if (currentState == GameState.Prospecting)
         {
             FindClosestTile();
-        }
-        else
-        {
-            currentTargetTile = null;
         }
     }
 
@@ -61,6 +74,20 @@ public class PlayerController : MonoBehaviour
         currentTargetTile = closestTile;
     }
 
+    // --- GESTIÓN DE INPUTS (Llamados por el componente PlayerInput) ---
+
+    /// <summary>
+    /// Este método ahora SOLO gestiona la navegación por teselas (una vez por presión).
+    /// </summary>
+    public void OnMove(InputAction.CallbackContext context)
+    {
+        if (GameManager.Instance.CurrentState == GameState.TileSelection && context.performed)
+        {
+            Vector2 moveInput = context.ReadValue<Vector2>();
+            NavigateTiles(moveInput);
+        }
+    }
+
     public void OnToggleProspecting(InputAction.CallbackContext context)
     {
         if (context.performed)
@@ -69,39 +96,69 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void OnDisarm(InputAction.CallbackContext context)
+    public void OnConfirmSelection(InputAction.CallbackContext context)
     {
         if (!context.performed) return;
+        GameState currentState = GameManager.Instance.CurrentState;
 
-        Debug.Log("Se presionó la tecla de Desarmar.");
-        if (GameManager.Instance.CurrentState != GameState.Prospecting)
+        if (currentState == GameState.Prospecting && currentTargetTile != null)
         {
-            Debug.Log("Intento de desarme fallido: No estamos en Modo Prospección.");
-            return;
+            GameManager.Instance.SwitchState(GameState.TileSelection);
+            ProspectingManager.Instance.SetSelectedTile(currentTargetTile);
+            if (tileSelectionCamera != null)
+            {
+                tileSelectionCamera.Follow = currentTargetTile.transform;
+                tileSelectionCamera.LookAt = currentTargetTile.transform;
+            }
         }
-        if (currentTargetTile == null)
+        else if (currentState == GameState.TileSelection)
         {
-            Debug.Log("Intento de desarme fallido: No hay ninguna tesela en el rango de interacción.");
-            return;
+            GameManager.Instance.SwitchState(GameState.Prospecting);
         }
-        
-        Debug.Log($"Éxito. Enviando orden de revelar para: {currentTargetTile.name}");
-        ProspectingManager.Instance.RevealTile(currentTargetTile);
     }
+
+    public void OnDisarm(InputAction.CallbackContext context)
+    {
+        if (context.performed && GameManager.Instance.CurrentState == GameState.TileSelection)
+        {
+            HexTile tileToDisarm = ProspectingManager.Instance.CurrentlySelectedTile;
+            if (tileToDisarm != null)
+            {
+                ProspectingManager.Instance.RevealTile(tileToDisarm);
+            }
+        }
+    }
+    
+    // --- LÓGICA PRIVADA Y DE GESTIÓN DE ESTADO ---
 
     private void HandleGameStateChange(GameState newState)
     {
         playerMovement.enabled = (newState == GameState.Exploration);
-        if (newState != GameState.Prospecting)
+        if (playerCamera != null)
+            playerCamera.enabled = (newState == GameState.Exploration || newState == GameState.Prospecting);
+        if (tileSelectionCamera != null)
+            tileSelectionCamera.enabled = (newState == GameState.TileSelection);
+        if (newState == GameState.Exploration)
         {
             currentTargetTile = null;
         }
     }
+    
+    private void NavigateTiles(Vector2 moveInput)
+    {
+        HexTile currentSelection = ProspectingManager.Instance.CurrentlySelectedTile;
+        HexTile nextTile = ProspectingManager.Instance.GetNeighborInDirection(currentSelection, moveInput);
+        if (nextTile != null)
+        {
+            ProspectingManager.Instance.SetSelectedTile(nextTile);
+            if (tileSelectionCamera != null)
+            {
+                tileSelectionCamera.Follow = nextTile.transform;
+                tileSelectionCamera.LookAt = nextTile.transform;
+            }
+        }
+    }
 
-    /// <summary>
-    /// Este método especial de Unity dibuja Gizmos en el Editor de la Escena.
-    /// Solo se dibuja cuando el objeto está seleccionado.
-    /// </summary>
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
