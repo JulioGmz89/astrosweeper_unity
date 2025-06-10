@@ -313,7 +313,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4313579626097955744, guid: 05b926eeed9a6ff4b8e01c22badca291, type: 3}
       propertyPath: m_ActionEvents.Array.data[2].m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: OnMove
+      value: OnConfirmSelection
       objectReference: {fileID: 0}
     - target: {fileID: 4313579626097955744, guid: 05b926eeed9a6ff4b8e01c22badca291, type: 3}
       propertyPath: m_ActionEvents.Array.data[3].m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
