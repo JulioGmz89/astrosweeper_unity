@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,6 +6,8 @@ using System.Linq;
 public class ProspectingManager : MonoBehaviour
 {
     public static ProspectingManager Instance { get; private set; }
+
+    public event Action<HexTile> OnSelectedTileChanged;
 
     [Header("Grid Settings")]
     [SerializeField] private GameObject hexGridContainer;
@@ -19,6 +22,7 @@ public class ProspectingManager : MonoBehaviour
     // --- ¡AQUÍ ESTÁ LA PROPIEDAD QUE FALTABA! ---
     // Guardará una referencia a la tesela que el jugador tiene seleccionada en el modo de selección.
     public HexTile CurrentlySelectedTile { get; private set; }
+
     
     // --- Variables Privadas ---
     private Dictionary<Vector2Int, HexTile> hexGrid = new Dictionary<Vector2Int, HexTile>();
@@ -110,12 +114,17 @@ public class ProspectingManager : MonoBehaviour
     /// </summary>
     public void SetSelectedTile(HexTile newTile)
     {
-        if (newTile == null) return;
+        if (newTile == null || newTile == CurrentlySelectedTile) return;
         
         // TODO: Lógica para des-resaltar la tesela anterior (CurrentlySelectedTile)
         CurrentlySelectedTile = newTile;
         // TODO: Lógica para aplicar un resaltado a la nueva tesela seleccionada
         Debug.Log($"Nueva tesela seleccionada: {CurrentlySelectedTile.name}");
+
+        // --- LÍNEA 2: HACER SONAR EL TIMBRE (INVOCAR EL EVENTO) ---
+        // Aquí avisamos a todos los que estén escuchando (el inventario) que
+        // el tile ha cambiado, y les pasamos el nuevo tile.
+        OnSelectedTileChanged?.Invoke(newTile);
     }
 
     /// <summary>
@@ -184,7 +193,7 @@ public class ProspectingManager : MonoBehaviour
         List<HexTile> validTrapTiles = hexGrid.Values.Except(forbiddenTiles).ToList();
         int trapCount = Mathf.FloorToInt(hexGrid.Count * trapDensity);
         
-        List<HexTile> tilesToPlaceTraps = validTrapTiles.OrderBy(x => Random.value).Take(trapCount).ToList();
+        List<HexTile> tilesToPlaceTraps = validTrapTiles.OrderBy(x => UnityEngine.Random.value).Take(trapCount).ToList();
         foreach (HexTile tile in tilesToPlaceTraps)
         {
             tile.isTrap = true;

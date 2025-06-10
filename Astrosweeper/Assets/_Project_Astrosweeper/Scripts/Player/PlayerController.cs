@@ -90,10 +90,24 @@ public class PlayerController : MonoBehaviour
 
     public void OnToggleProspecting(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (!context.performed) return;
+
+        // Obtenemos la instancia del GameManager una sola vez.
+        var gameManager = GameManager.Instance;
+
+        // Comprobamos el estado actual para decidir qué hacer.
+        if (gameManager.CurrentState == GameState.Exploration)
         {
-            GameManager.Instance.ToggleProspectingMode();
+            // Si estamos explorando, entramos en modo prospección.
+            gameManager.EnterProspectingMode();
         }
+        else if (gameManager.CurrentState == GameState.Prospecting)
+        {
+            // Si estamos en prospección, volvemos a exploración.
+            gameManager.EnterExplorationMode();
+        }
+        // Nota: Si estamos en TileSelection, este input no hará nada,
+        // lo cual es correcto. Para salir de TileSelection se usa OnConfirmSelection.
     }
 
     public void OnConfirmSelection(InputAction.CallbackContext context)
@@ -103,8 +117,9 @@ public class PlayerController : MonoBehaviour
 
         if (currentState == GameState.Prospecting && currentTargetTile != null)
         {
-            GameManager.Instance.SwitchState(GameState.TileSelection);
             ProspectingManager.Instance.SetSelectedTile(currentTargetTile);
+            GameManager.Instance.SwitchState(GameState.TileSelection);
+
             if (tileSelectionCamera != null)
             {
                 tileSelectionCamera.Follow = currentTargetTile.transform;
