@@ -439,8 +439,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Priority:
-    Enabled: 0
-    m_Value: 0
+    Enabled: 1
+    m_Value: 1
   OutputChannel: 1
   StandbyUpdate: 2
   m_StreamingVersion: 20241001
@@ -815,8 +815,8 @@ GameObject:
   - component: {fileID: 1134024266}
   - component: {fileID: 1134024265}
   - component: {fileID: 1134024264}
-  - component: {fileID: 1134024268}
   - component: {fileID: 1134024267}
+  - component: {fileID: 1134024268}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
