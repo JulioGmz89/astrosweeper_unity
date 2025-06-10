@@ -22,6 +22,9 @@ public class TileInventoryController : MonoBehaviour
     private GameObject currentItemInstance;
     private InputAction navigateAction;
 
+    private Vector2 VectorLoco;
+
+
     private void Awake()
     {
         if (playerInput != null)
@@ -52,7 +55,18 @@ public class TileInventoryController : MonoBehaviour
     {
         inventoryUIParent.SetActive(false);
     }
-    
+
+    // void Update()
+    // {
+
+    //     Debug.Log(navigateAction);
+
+    //     VectorLoco = navigateAction.ReadValue<Vector2>();
+
+    //     Debug.Log(VectorLoco.x);
+    //     Debug.Log(VectorLoco.y);
+    // }	
+
     // --- LÓGICA DE ESTADO MEJORADA ---
     private void HandleGameStateChanged(GameState newState)
     {
@@ -61,7 +75,7 @@ public class TileInventoryController : MonoBehaviour
             // Al entrar en el estado, mostramos el inventario inmediatamente
             // en la posición del tile que ya está seleccionado.
             UpdatePosition(prospectingManager.CurrentlySelectedTile);
-            
+
             // Y nos suscribimos al input de navegación del inventario.
             if (navigateAction != null) navigateAction.performed += OnNavigate;
         }

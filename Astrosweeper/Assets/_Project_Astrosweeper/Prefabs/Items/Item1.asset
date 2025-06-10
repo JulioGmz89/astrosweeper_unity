@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Item1
   m_EditorClassIdentifier: 
   itemName: Item1
-  displayModel: {fileID: 6478575984054210322, guid: 3561dfa0e17077b41b8cccc01131ece7, type: 3}
+  displayModel: {fileID: 5785342807574467594, guid: 76c2e307f73dd3b41a77ff7d478bfdf2, type: 3}

@@ -40,6 +40,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "MapsInventory",
+                    "type": "Value",
+                    "id": "cda6ba04-d164-4fa4-8307-6fc2fa93179f",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -141,27 +150,10 @@
                     "action": "UseObject",
                     "isComposite": false,
                     "isPartOfComposite": false
-                }
-            ]
-        },
-        {
-            "name": "TileSelection",
-            "id": "6d5ba381-7b04-4af3-abfd-12b901eeb84f",
-            "actions": [
-                {
-                    "name": "MapsInventory",
-                    "type": "Value",
-                    "id": "86ad239c-6e99-45cb-a3ca-2f30bae4ba25",
-                    "expectedControlType": "Vector2",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                }
-            ],
-            "bindings": [
+                },
                 {
                     "name": "Arrows",
-                    "id": "8adcbd51-3dfe-4c91-873a-f4ed1ae0fd36",
+                    "id": "158b237c-50c1-4438-b38c-2143b73d0205",
                     "path": "2DVector",
                     "interactions": "",
                     "processors": "",
@@ -172,7 +164,7 @@
                 },
                 {
                     "name": "up",
-                    "id": "e43b1dd9-36e3-43bb-86bf-0092c37aa9ab",
+                    "id": "72d32bee-38db-46b4-9f75-8c19102584c0",
                     "path": "",
                     "interactions": "",
                     "processors": "",
@@ -183,7 +175,7 @@
                 },
                 {
                     "name": "down",
-                    "id": "5719affb-8e5a-47b9-bf64-d79a367e1abb",
+                    "id": "4f037580-d50f-4088-9957-14322756ca2a",
                     "path": "",
                     "interactions": "",
                     "processors": "",
@@ -194,7 +186,7 @@
                 },
                 {
                     "name": "left",
-                    "id": "0fca11a1-fbc1-4b4a-a3ca-01fc8071cdba",
+                    "id": "3ff069f3-1c71-41db-acac-14ec66d0d918",
                     "path": "<Keyboard>/leftArrow",
                     "interactions": "",
                     "processors": "",
@@ -205,7 +197,7 @@
                 },
                 {
                     "name": "right",
-                    "id": "83ba9ad2-e28a-40a9-bb8e-05bd9ed24470",
+                    "id": "d1ec6090-b702-406b-a7ce-709a30c43ce1",
                     "path": "<Keyboard>/rightArrow",
                     "interactions": "",
                     "processors": "",
@@ -215,6 +207,12 @@
                     "isPartOfComposite": true
                 }
             ]
+        },
+        {
+            "name": "TileSelection",
+            "id": "6d5ba381-7b04-4af3-abfd-12b901eeb84f",
+            "actions": [],
+            "bindings": []
         }
     ],
     "controlSchemes": []

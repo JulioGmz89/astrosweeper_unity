@@ -188,6 +188,10 @@ PrefabInstance:
       value: ProspectorTest
       objectReference: {fileID: 0}
     - target: {fileID: 4313579626097955744, guid: 05b926eeed9a6ff4b8e01c22badca291, type: 3}
+      propertyPath: m_DefaultActionMap
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 4313579626097955744, guid: 05b926eeed9a6ff4b8e01c22badca291, type: 3}
       propertyPath: m_NotificationBehavior
       value: 2
       objectReference: {fileID: 0}
@@ -213,7 +217,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4313579626097955744, guid: 05b926eeed9a6ff4b8e01c22badca291, type: 3}
       propertyPath: m_ActionEvents.Array.data[4].m_ActionId
-      value: 86ad239c-6e99-45cb-a3ca-2f30bae4ba25
+      value: cda6ba04-d164-4fa4-8307-6fc2fa93179f
       objectReference: {fileID: 0}
     - target: {fileID: 4313579626097955744, guid: 05b926eeed9a6ff4b8e01c22badca291, type: 3}
       propertyPath: m_ActionEvents.Array.data[0].m_ActionName
@@ -233,7 +237,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4313579626097955744, guid: 05b926eeed9a6ff4b8e01c22badca291, type: 3}
       propertyPath: m_ActionEvents.Array.data[4].m_ActionName
-      value: 'TileSelection/MapsInventory[/Keyboard/leftArrow,/Keyboard/rightArrow]'
+      value: 'Player/MapsInventory[/Keyboard/4,/Keyboard/6]'
       objectReference: {fileID: 0}
     - target: {fileID: 4313579626097955744, guid: 05b926eeed9a6ff4b8e01c22badca291, type: 3}
       propertyPath: m_ActionEvents.Array.data[0].m_PersistentCalls.m_Calls.Array.size
@@ -1600,6 +1604,14 @@ MonoBehaviour:
   leftArrowObject: {fileID: 420965205}
   rightArrowObject: {fileID: 572319233}
   playerInventory:
+  - {fileID: 11400000, guid: e9411b32ae6bfb445b1696b36e2c27b2, type: 2}
+  - {fileID: 11400000, guid: a9d61ce81bb2f984eb368f829d0a4e74, type: 2}
+  - {fileID: 11400000, guid: e9411b32ae6bfb445b1696b36e2c27b2, type: 2}
+  - {fileID: 11400000, guid: a9d61ce81bb2f984eb368f829d0a4e74, type: 2}
+  - {fileID: 11400000, guid: e9411b32ae6bfb445b1696b36e2c27b2, type: 2}
+  - {fileID: 11400000, guid: a9d61ce81bb2f984eb368f829d0a4e74, type: 2}
+  - {fileID: 11400000, guid: e9411b32ae6bfb445b1696b36e2c27b2, type: 2}
+  - {fileID: 11400000, guid: a9d61ce81bb2f984eb368f829d0a4e74, type: 2}
   - {fileID: 11400000, guid: e9411b32ae6bfb445b1696b36e2c27b2, type: 2}
   - {fileID: 11400000, guid: a9d61ce81bb2f984eb368f829d0a4e74, type: 2}
   prospectingManager: {fileID: 920069167}
