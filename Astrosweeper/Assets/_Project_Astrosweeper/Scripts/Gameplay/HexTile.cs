@@ -90,4 +90,26 @@ public class HexTile : MonoBehaviour
             meshRenderer.enabled = visible;
         }
     }
+
+    // --- LÓGICA DE INTERACCIÓN CON OBJETOS ---
+    private GameObject placedItemInstance = null;
+    public bool IsOccupied => placedItemInstance != null;
+
+    public void PlaceItem(GameObject itemPrefab)
+    {
+        if (IsOccupied) 
+        {
+            Debug.LogWarning($"Tile {name} is already occupied.");
+            return;
+        }
+
+        if (itemPrefab != null)
+        {
+            // Instanciamos el objeto en el centro de la casilla, con un pequeño offset vertical.
+            float yOffset = 0.5f; // Ajusta este valor según sea necesario.
+            Vector3 position = transform.position + new Vector3(0, yOffset, 0);
+            
+            placedItemInstance = Instantiate(itemPrefab, position, Quaternion.identity, transform);
+        }
+    }
 }

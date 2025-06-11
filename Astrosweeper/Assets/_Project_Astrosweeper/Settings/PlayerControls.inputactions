@@ -49,6 +49,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "UseItem",
+                    "type": "Button",
+                    "id": "10b5ba1d-df1b-40c7-952e-3de3da7dbc60",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -205,6 +214,17 @@
                     "action": "MapsInventory",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "720cafb6-1dd0-47f5-87e0-3621079b4148",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "UseItem",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
