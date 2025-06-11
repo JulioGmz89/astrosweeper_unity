@@ -7,7 +7,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewInventoryItem", menuName = "Astrosweeper/Inventory Item")]
 public class InventoryItem : ScriptableObject
 {
-    public enum ItemType { Generic, Flag }
+        public enum ItemType { Generic, Flag, Defuse }
 
     [Tooltip("El tipo de objeto para lógica especial.")]
     public ItemType itemType = ItemType.Generic;
@@ -24,6 +24,13 @@ public class InventoryItem : ScriptableObject
     public void Use(HexTile targetTile)
     {
         Debug.Log($"Object {itemName} Used on tile {targetTile.name}");
+
+        switch (itemType)
+        {
+            case ItemType.Defuse:
+                targetTile.DefuseTrap();
+                break;
+        }
     }
 
     // Futura expansión: Aquí podrías añadir una referencia al efecto que causa el item al usarse sobre un tile.
