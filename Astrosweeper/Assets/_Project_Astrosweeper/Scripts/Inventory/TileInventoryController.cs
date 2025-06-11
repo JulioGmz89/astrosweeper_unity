@@ -242,20 +242,30 @@ public class TileInventoryController : MonoBehaviour
         if (!context.performed) return;
 
         HexTile targetTile = prospectingManager.CurrentlySelectedTile;
-        if (targetTile == null || targetTile.IsOccupied)
-        {
-            if(targetTile != null) Debug.LogWarning($"Tile {targetTile.name} is already occupied.");
-            return;
-        }
-
+        if (targetTile == null) return;
         if (playerInventory.Count == 0) return;
 
         InventoryItem currentItem = playerInventory[currentItemIndex];
         if (currentItem == null) return;
 
-        // Usar y colocar el objeto
-        currentItem.Use(targetTile);
-        targetTile.PlaceItem(currentItem.placedPrefab);
+        // Lógica de uso diferenciada por tipo de item
+        if (currentItem.itemType == InventoryItem.ItemType.Flag)
+        {
+            // La bandera se puede colocar incluso si el tile está ocupado
+            currentItem.Use(targetTile);
+            targetTile.PlaceFlag(currentItem.placedPrefab);
+        }
+        else
+        {
+            // Para items genéricos, se comprueba si el tile está ocupado
+            if (targetTile.IsOccupied)
+            {
+                Debug.LogWarning($"Tile {targetTile.name} is already occupied.");
+                return;
+            }
+            currentItem.Use(targetTile);
+            targetTile.PlaceItem(currentItem.placedPrefab);
+        }
     }
 
     private void UpdateDisplay()

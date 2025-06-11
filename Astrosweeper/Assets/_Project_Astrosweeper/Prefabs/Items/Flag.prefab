@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 233438025909570299}
   - component: {fileID: 1803591843537574766}
   - component: {fileID: 4051189686131019040}
-  m_Layer: 0
-  m_Name: Cylinder 1
+  m_Layer: 7
+  m_Name: Flag
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -28,8 +28,8 @@ Transform:
   m_GameObject: {fileID: 9150384333327583728}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 83.8838, y: -0, z: 36.22942}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalPosition: {x: 83.8838, y: 0.5, z: 36.22942}
+  m_LocalScale: {x: 0.12, y: 1.5, z: 0.12}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -65,7 +65,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 4bad8d4be4cc2fa4aba0236543b55afb, type: 2}
+  - {fileID: 2100000, guid: ab7c7abe94c94154ba8ea25f5a8580d5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -104,7 +104,7 @@ CapsuleCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Radius: 0.5000001
   m_Height: 2
