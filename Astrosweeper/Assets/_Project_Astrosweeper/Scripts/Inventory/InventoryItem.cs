@@ -7,6 +7,11 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewInventoryItem", menuName = "Astrosweeper/Inventory Item")]
 public class InventoryItem : ScriptableObject
 {
+    public enum ItemType { Generic, Flag }
+
+    [Tooltip("El tipo de objeto para lógica especial.")]
+    public ItemType itemType = ItemType.Generic;
+
     [Tooltip("El nombre del objeto que podría mostrarse en un futuro")]
     public string itemName;
 

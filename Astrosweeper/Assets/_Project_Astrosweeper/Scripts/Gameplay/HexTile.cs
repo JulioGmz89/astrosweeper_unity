@@ -93,7 +93,9 @@ public class HexTile : MonoBehaviour
 
     // --- LÓGICA DE INTERACCIÓN CON OBJETOS ---
     private GameObject placedItemInstance = null;
+    private GameObject flagInstance = null; // Referencia para la bandera
     public bool IsOccupied => placedItemInstance != null;
+    public bool HasFlag => flagInstance != null;
 
     public void PlaceItem(GameObject itemPrefab)
     {
@@ -110,6 +112,30 @@ public class HexTile : MonoBehaviour
             Vector3 position = transform.position + new Vector3(0, yOffset, 0);
             
             placedItemInstance = Instantiate(itemPrefab, position, Quaternion.identity, transform);
+        }
+    }
+
+    public void PlaceFlag(GameObject flagPrefab)
+    {
+        if (HasFlag)
+        {
+            Debug.LogWarning($"Tile {name} already has a flag.");
+            return;
+        }
+
+        if (flagPrefab != null)
+        {
+            float yOffset = 0.5f; // Ajusta este valor según sea necesario.
+            Vector3 position = transform.position + new Vector3(0, yOffset, 0);
+            flagInstance = Instantiate(flagPrefab, position, Quaternion.identity, transform);
+        }
+    }
+
+    public void SetFlagVisible(bool visible)
+    {
+        if (flagInstance != null)
+        {
+            flagInstance.SetActive(visible);
         }
     }
 }
