@@ -1,63 +1,103 @@
 using UnityEngine;
+using System; // Requerido para usar la clase Action
 
+/// <summary>
+/// Define los estados globales del juego. Al estar fuera de la clase,
+/// es fácilmente accesible desde otros scripts sin necesidad de una referencia al GameManager.
+/// </summary>
 public enum GameState
 {
-    Exploration, // Movimiento libre en 3D
-    Prospecting,  // Interfaz de Buscaminas holográfica
-    
-    TileSelection
+    Exploration,    // El jugador se mueve libremente por el mundo en 3D.
+    Prospecting,    // El jugador observa la cuadrícula holográfica desde una vista orbital.
+    TileSelection   // El jugador navega y selecciona tiles individuales en la cuadrícula.
 }
 
+/// <summary>
+/// Gestiona el estado global del juego (GameState), actuando como un director central.
+/// Utiliza un evento estático para notificar a otros sistemas de los cambios de estado.
+/// </summary>
 public class GameManager : MonoBehaviour
 {
+    // --- Singleton Pattern ---
+    // Proporciona una única instancia global accesible desde cualquier script.
     public static GameManager Instance { get; private set; }
 
+    // --- State Properties ---
+    // Propiedad pública para que cualquier script pueda consultar el estado actual.
     public GameState CurrentState { get; private set; }
 
-    // Eventos para que otros sistemas reaccionen a los cambios de estado
-    public static event System.Action<GameState> OnGameStateChanged;
+    /// <summary>
+    /// Evento estático que se dispara cuando el estado del juego cambia.
+    /// Otros sistemas pueden suscribirse directamente (ej: GameManager.OnGameStateChanged += ...).
+    /// </summary>
+    public static event Action<GameState> OnGameStateChanged;
 
     private void Awake()
     {
-        // Patrón Singleton para asegurar una única instancia
+        // Lógica del Singleton para asegurar que solo exista una instancia del GameManager.
         if (Instance != null && Instance != this)
         {
+            // Si ya hay una instancia, destruir este objeto para evitar duplicados.
             Destroy(gameObject);
         }
         else
         {
+            // Si no hay ninguna, esta se convierte en la instancia única.
             Instance = this;
-            DontDestroyOnLoad(gameObject); // Opcional, si queremos que persista entre escenas
+            // Opcional: Hace que el GameManager no se destruya al cargar nuevas escenas.
+            DontDestroyOnLoad(gameObject);
         }
     }
 
     private void Start()
     {
-        // El juego siempre comienza en modo exploración
+        // Según el GDD y la lógica de juego, la partida siempre comienza en modo Exploración.
+        // Usamos una llamada a SwitchState en lugar de asignar la variable directamente
+        // para asegurarnos de que el evento OnGameStateChanged se dispare al inicio.
         SwitchState(GameState.Exploration);
     }
 
+    /// <summary>
+    /// El método principal para cambiar de un estado de juego a otro.
+    /// </summary>
+    /// <param name="newState">El nuevo estado al que se va a transicionar.</param>
     public void SwitchState(GameState newState)
     {
+        // Evitar cambiar al mismo estado para no ejecutar la lógica innecesariamente.
         if (CurrentState == newState) return;
 
         CurrentState = newState;
-        Debug.Log($"Cambiando a estado: {newState}");
+        Debug.Log($"[GameManager] Cambiando a estado: {newState}");
 
-        // Lanzamos el evento para notificar a otros sistemas (UI, PlayerController, Cámara, etc.)
+        // Disparar el evento estático para notificar a todos los suscriptores.
+        // El operador '?' (null-conditional) previene un error si no hay suscriptores.
         OnGameStateChanged?.Invoke(newState);
     }
 
-    // Ejemplo de cómo podríamos cambiar de estado (esto lo llamaría el PlayerController)
-    public void ToggleProspectingMode()
+    // --- Métodos Públicos de Transición ---
+    // Estos métodos pueden ser llamados desde otros scripts (como PlayerController o UI)
+    // para solicitar un cambio de estado de manera clara y legible.
+
+    public void EnterProspectingMode()
     {
+        // Solo se puede entrar a Prospecting desde Exploration.
         if (CurrentState == GameState.Exploration)
         {
             SwitchState(GameState.Prospecting);
         }
-        else
+    }
+
+    public void EnterExplorationMode()
+    {
+        // Se puede volver a Exploration desde Prospecting o TileSelection.
+        if (CurrentState == GameState.Prospecting || CurrentState == GameState.TileSelection)
         {
             SwitchState(GameState.Exploration);
         }
     }
+    
+    // NOTA: No hay un método público aquí para entrar en TileSelection.
+    // Como hemos discutido, la responsabilidad de entrar en ese estado recae en el
+    // ProspectingManager cuando se selecciona un tile específico. Ese manager
+    // llamará directamente a: GameManager.Instance.SwitchState(GameState.TileSelection);
 }
