@@ -22,6 +22,7 @@ public class TileInventoryController : MonoBehaviour
     private int currentItemIndex = 0;
     private GameObject currentItemInstance;
     private InputAction navigateAction;
+    private InputAction useItemAction;
 
     private Vector2 VectorLoco;
 
@@ -31,6 +32,7 @@ public class TileInventoryController : MonoBehaviour
         if (playerInput != null)
         {
             navigateAction = playerInput.actions["MapsInventory"];
+            useItemAction = playerInput.actions["UseItem"]; // Make sure this action exists in your Input Actions asset
         }
     }
 
@@ -79,6 +81,7 @@ public class TileInventoryController : MonoBehaviour
 
             // Y nos suscribimos al input de navegación del inventario.
             if (navigateAction != null) navigateAction.performed += OnNavigate;
+            if (useItemAction != null) useItemAction.performed += OnUseItem;
         }
         else
         {
@@ -86,6 +89,7 @@ public class TileInventoryController : MonoBehaviour
             // y de dejar de escuchar el input.
             inventoryUIParent.SetActive(false);
             if (navigateAction != null) navigateAction.performed -= OnNavigate;
+            if (useItemAction != null) useItemAction.performed -= OnUseItem;
         }
     }
     
@@ -218,11 +222,14 @@ public class TileInventoryController : MonoBehaviour
     
     public void OnNavigate(InputAction.CallbackContext context)
     {
+        if (!context.performed) return;
         if (playerInventory.Count <= 1) return;
         Vector2 input = context.ReadValue<Vector2>();
 
         if (input.x < 0) { currentItemIndex--; }
         else if (input.x > 0) { currentItemIndex++; }
+
+        Debug.Log("Current Item Index: " + currentItemIndex);
 
         if (currentItemIndex < 0) { currentItemIndex = playerInventory.Count - 1; }
         if (currentItemIndex >= playerInventory.Count) { currentItemIndex = 0; }
@@ -230,6 +237,27 @@ public class TileInventoryController : MonoBehaviour
         UpdateDisplay();
     }
     
+    public void OnUseItem(InputAction.CallbackContext context)
+    {
+        if (!context.performed) return;
+
+        HexTile targetTile = prospectingManager.CurrentlySelectedTile;
+        if (targetTile == null || targetTile.IsOccupied)
+        {
+            if(targetTile != null) Debug.LogWarning($"Tile {targetTile.name} is already occupied.");
+            return;
+        }
+
+        if (playerInventory.Count == 0) return;
+
+        InventoryItem currentItem = playerInventory[currentItemIndex];
+        if (currentItem == null) return;
+
+        // Usar y colocar el objeto
+        currentItem.Use(targetTile);
+        targetTile.PlaceItem(currentItem.placedPrefab);
+    }
+
     private void UpdateDisplay()
     {
         if (itemDisplaySlot == null) return;

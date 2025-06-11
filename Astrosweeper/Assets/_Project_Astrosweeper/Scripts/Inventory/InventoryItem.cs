@@ -13,6 +13,14 @@ public class InventoryItem : ScriptableObject
     [Tooltip("Prefab del modelo 3D que se mostrará en la UI del inventario en TileSelection mode")]
     public GameObject displayModel;
 
+    [Tooltip("Prefab que se instanciará en el mundo cuando el objeto es usado sobre una casilla.")]
+    public GameObject placedPrefab;
+
+    public void Use(HexTile targetTile)
+    {
+        Debug.Log($"Object {itemName} Used on tile {targetTile.name}");
+    }
+
     // Futura expansión: Aquí podrías añadir una referencia al efecto que causa el item al usarse sobre un tile.
     // public TileEffect itemEffect;
 }

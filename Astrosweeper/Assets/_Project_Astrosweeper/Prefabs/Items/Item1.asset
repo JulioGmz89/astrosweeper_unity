@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: Item1
   displayModel: {fileID: 5785342807574467594, guid: 76c2e307f73dd3b41a77ff7d478bfdf2, type: 3}
+  placedPrefab: {fileID: 5785342807574467594, guid: de45149107338c848bb2e19a1b283299, type: 3}
