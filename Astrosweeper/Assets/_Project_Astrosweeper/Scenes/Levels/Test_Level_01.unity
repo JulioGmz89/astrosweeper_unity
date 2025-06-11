@@ -190,7 +190,7 @@ PrefabInstance:
     - target: {fileID: 3175156231278533694, guid: 05b926eeed9a6ff4b8e01c22badca291, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: ab7c7abe94c94154ba8ea25f5a8580d5, type: 2}
+      objectReference: {fileID: 2100000, guid: 4bad8d4be4cc2fa4aba0236543b55afb, type: 2}
     - target: {fileID: 4313579626097955744, guid: 05b926eeed9a6ff4b8e01c22badca291, type: 3}
       propertyPath: m_DefaultActionMap
       value: Player

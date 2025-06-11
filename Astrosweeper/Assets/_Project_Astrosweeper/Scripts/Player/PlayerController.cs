@@ -16,6 +16,9 @@ public class PlayerController : MonoBehaviour
     [Header("Movement Settings")]
     [SerializeField] private float rotationSpeed = 100f; // Velocidad de rotación en modo Prospecting
 
+    [Header("Visuals")]
+    [SerializeField] private GameObject holoCone;
+
     // --- Referencias de Componentes ---
     private PlayerMovement playerMovement;
     private PlayerInput playerInput; // Referencia al componente PlayerInput
@@ -161,6 +164,13 @@ public class PlayerController : MonoBehaviour
             playerCamera.enabled = (newState == GameState.Exploration || newState == GameState.Prospecting);
         if (tileSelectionCamera != null)
             tileSelectionCamera.enabled = (newState == GameState.TileSelection);
+
+        // --- Lógica del HoloCone ---
+        if (holoCone != null)
+        {
+            holoCone.SetActive(newState == GameState.Prospecting || newState == GameState.TileSelection);
+        }
+
         if (newState == GameState.Exploration)
         {
             currentTargetTile = null;
