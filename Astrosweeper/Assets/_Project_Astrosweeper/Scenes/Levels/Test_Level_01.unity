@@ -365,7 +365,7 @@ PrefabInstance:
       objectReference: {fileID: 318095611}
     - target: {fileID: 4736629785226461007, guid: 05b926eeed9a6ff4b8e01c22badca291, type: 3}
       propertyPath: tileLayer.m_Bits
-      value: 64
+      value: 128
       objectReference: {fileID: 0}
     - target: {fileID: 4736629785226461007, guid: 05b926eeed9a6ff4b8e01c22badca291, type: 3}
       propertyPath: tileSelectionCamera

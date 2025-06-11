@@ -11,8 +11,8 @@ TagManager:
   - 
   - Water
   - UI
+  - ConeMask
   - HexTile
-  - 
   - 
   - 
   - 
@@ -50,3 +50,4 @@ TagManager:
   - Light Layer 5
   - Light Layer 6
   - Light Layer 7
+  - Hologram Clipping

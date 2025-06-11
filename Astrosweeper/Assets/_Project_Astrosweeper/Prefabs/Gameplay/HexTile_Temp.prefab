@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 7630373279285130437}
   - component: {fileID: 6189136891227812589}
   - component: {fileID: -6669625683371186555}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: HexTile_Temp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
