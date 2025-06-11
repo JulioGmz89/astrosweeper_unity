@@ -13,6 +13,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float interactionRadius = 2f;
     [SerializeField] private LayerMask tileLayer;
 
+    [Header("Movement Settings")]
+    [SerializeField] private float rotationSpeed = 100f; // Velocidad de rotación en modo Prospecting
+
     // --- Referencias de Componentes ---
     private PlayerMovement playerMovement;
     private PlayerInput playerInput; // Referencia al componente PlayerInput
@@ -41,18 +44,23 @@ public class PlayerController : MonoBehaviour
     {
         GameState currentState = GameManager.Instance.CurrentState;
 
+        // Leemos el input de movimiento una vez por frame para usarlo en diferentes estados.
+        moveInputVector = playerInput.actions["Move"].ReadValue<Vector2>();
+
         // --- Lógica de Movimiento Continuo ---
         if (currentState == GameState.Exploration)
         {
-            // Leemos el valor del input en cada frame y se lo pasamos al PlayerMovement
-            moveInputVector = playerInput.actions["Move"].ReadValue<Vector2>();
             playerMovement.ProcessMove(moveInputVector);
         }
 
-        // --- Lógica de Detección de Teselas ---
+        // --- Lógica de Detección de Teselas y Rotación en modo Prospecting ---
         if (currentState == GameState.Prospecting)
         {
             FindClosestTile();
+
+            // Lógica de rotación con A y D (eje horizontal del input 'Move')
+            float rotationInput = moveInputVector.x;
+            transform.Rotate(Vector3.up, rotationInput * rotationSpeed * Time.deltaTime);
         }
     }
 
