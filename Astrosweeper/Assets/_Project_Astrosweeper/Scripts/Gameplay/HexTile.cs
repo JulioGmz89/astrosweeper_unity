@@ -138,4 +138,17 @@ public class HexTile : MonoBehaviour
             flagInstance.SetActive(visible);
         }
     }
+
+    public void DefuseTrap()
+    {
+        if (isTrap)
+        {
+            isTrap = false;
+            Debug.Log($"Trap on tile {name} has been defused.");
+        }
+        else
+        {
+            Debug.Log($"Used Defuse on tile {name}, but it had no trap.");
+        }
+    }
 }
