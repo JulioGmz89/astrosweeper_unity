@@ -191,13 +191,22 @@ public class ProspectingManager : MonoBehaviour
     private void PlaceTraps(List<HexTile> forbiddenTiles)
     {
         List<HexTile> validTrapTiles = hexGrid.Values.Except(forbiddenTiles).ToList();
-        int trapCount = Mathf.FloorToInt(hexGrid.Count * trapDensity);
-        
-        List<HexTile> tilesToPlaceTraps = validTrapTiles.OrderBy(x => UnityEngine.Random.value).Take(trapCount).ToList();
-        foreach (HexTile tile in tilesToPlaceTraps)
+
+        int totalTrapCount = Mathf.FloorToInt(hexGrid.Count * trapDensity);
+
+        int trapsToPlace = Mathf.Min(totalTrapCount, validTrapTiles.Count);
+
+        System.Random rng = new System.Random();
+        List<HexTile> trapLocations = validTrapTiles.OrderBy(x => rng.Next()).Take(trapsToPlace).ToList();
+
+        foreach (HexTile tile in trapLocations)
         {
             tile.isTrap = true;
+            // Opcional: Podrías añadir aquí la instanciación de un objeto visual para la trampa en el modo exploración.
+            // Ejemplo: Instantiate(trapPrefab, tile.transform.position, Quaternion.identity);
         }
+
+        Debug.Log($"Se colocaron {trapsToPlace} trampas en el tablero.");
     }
     
     void GenerateGrid()
