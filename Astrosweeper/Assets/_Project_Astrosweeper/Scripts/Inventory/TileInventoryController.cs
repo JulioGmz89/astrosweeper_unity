@@ -98,27 +98,29 @@ public class TileInventoryController : MonoBehaviour
             inventoryUIParent.SetActive(false);
             return;
         }
-        
-        List<Vector3> edgeMidpoints = GetHexagonTopEdgeMidpoints(targetTile);
+
+        List<HexEdgeInfo> edgeInfos = GetHexagonTopEdgesInfo(targetTile);
         Vector3 positionOnEdge;
+        Quaternion rotationOnEdge = Quaternion.identity;
 
-        if (edgeMidpoints != null)
+        if (edgeInfos != null)
         {
-            // Find the midpoint closest to the camera
+            // Find the edge whose midpoint is closest to the camera
             Vector3 cameraPosition = Camera.main.transform.position;
-            Vector3 closestMidpoint = edgeMidpoints[0];
-            float minDistanceSq = (closestMidpoint - cameraPosition).sqrMagnitude;
+            HexEdgeInfo closestEdge = edgeInfos[0];
+            float minDistanceSq = (closestEdge.Midpoint - cameraPosition).sqrMagnitude;
 
-            for (int i = 1; i < edgeMidpoints.Count; i++)
+            for (int i = 1; i < edgeInfos.Count; i++)
             {
-                float distanceSq = (edgeMidpoints[i] - cameraPosition).sqrMagnitude;
+                float distanceSq = (edgeInfos[i].Midpoint - cameraPosition).sqrMagnitude;
                 if (distanceSq < minDistanceSq)
                 {
                     minDistanceSq = distanceSq;
-                    closestMidpoint = edgeMidpoints[i];
+                    closestEdge = edgeInfos[i];
                 }
             }
-            positionOnEdge = closestMidpoint;
+            positionOnEdge = closestEdge.Midpoint;
+            rotationOnEdge = Quaternion.LookRotation(closestEdge.Direction);
         }
         else
         {
@@ -132,6 +134,13 @@ public class TileInventoryController : MonoBehaviour
                 directionToCamera.y = 0;
                 directionToCamera.Normalize();
                 positionOnEdge = tilePosition + directionToCamera * hexRadius;
+
+                // For fallback, align rotation with the circular edge
+                Vector3 tangent = Vector3.Cross(directionToCamera, Vector3.up).normalized;
+                if (tangent.sqrMagnitude > 0.001f)
+                {
+                    rotationOnEdge = Quaternion.LookRotation(tangent);
+                }
             }
             else
             {
@@ -144,13 +153,19 @@ public class TileInventoryController : MonoBehaviour
         inventoryUIParent.SetActive(true);
         float yOffset = 0.2f;
         inventoryUIParent.transform.position = positionOnEdge + new Vector3(0, yOffset, 0);
-        inventoryUIParent.transform.rotation = Quaternion.identity;
+        inventoryUIParent.transform.rotation = rotationOnEdge * Quaternion.Euler(0, 90, 0);
 
         // Actualizamos el modelo del item mostrado.
         UpdateDisplay();
     }
 
-    private List<Vector3> GetHexagonTopEdgeMidpoints(HexTile tile)
+    private struct HexEdgeInfo
+    {
+        public Vector3 Midpoint;
+        public Vector3 Direction;
+    }
+
+    private List<HexEdgeInfo> GetHexagonTopEdgesInfo(HexTile tile)
     {
         var meshFilter = tile.GetComponent<MeshFilter>();
         if (meshFilter == null || meshFilter.sharedMesh == null) return null;
@@ -187,15 +202,18 @@ public class TileInventoryController : MonoBehaviour
 
         topVertices = topVertices.OrderBy(v => Mathf.Atan2(v.x, v.z)).ToList();
 
-        List<Vector3> edgeMidpoints = new List<Vector3>();
+        List<HexEdgeInfo> edgeInfos = new List<HexEdgeInfo>();
         for (int i = 0; i < topVertices.Count; i++)
         {
             Vector3 p1 = tile.transform.TransformPoint(topVertices[i]);
             Vector3 p2 = tile.transform.TransformPoint(topVertices[(i + 1) % topVertices.Count]);
-            edgeMidpoints.Add((p1 + p2) / 2);
+            edgeInfos.Add(new HexEdgeInfo {
+                Midpoint = (p1 + p2) / 2,
+                Direction = (p2 - p1).normalized
+            });
         }
 
-        return edgeMidpoints;
+        return edgeInfos;
     }
     
     public void OnNavigate(InputAction.CallbackContext context)
