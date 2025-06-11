@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b29c82528bd9d304b9e926128bb81987, type: 3}
-  m_Name: Defuse
+  m_Name: Defuse Kit
   m_EditorClassIdentifier: 
-  itemType: 0
-  itemName: 
-  displayModel: {fileID: 0}
-  placedPrefab: {fileID: 0}
+  itemType: 2
+  itemName: Defuse Kit
+  displayModel: {fileID: 6478575984054210322, guid: 3561dfa0e17077b41b8cccc01131ece7, type: 3}
+  placedPrefab: {fileID: 6478575984054210322, guid: e687496a728a4154bbcefb6409c0f462, type: 3}

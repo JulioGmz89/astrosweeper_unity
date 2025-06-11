@@ -2838,8 +2838,8 @@ MonoBehaviour:
   leftArrowObject: {fileID: 420965205}
   rightArrowObject: {fileID: 572319233}
   playerInventory:
+  - {fileID: 11400000, guid: e81a864a6aeaa374995af4392334081f, type: 2}
   - {fileID: 11400000, guid: a9d61ce81bb2f984eb368f829d0a4e74, type: 2}
-  - {fileID: 11400000, guid: e9411b32ae6bfb445b1696b36e2c27b2, type: 2}
   - {fileID: 11400000, guid: 56e238712c1618e459d81f4e46cd5f69, type: 2}
   prospectingManager: {fileID: 920069167}
   playerInput: {fileID: 657443900}
