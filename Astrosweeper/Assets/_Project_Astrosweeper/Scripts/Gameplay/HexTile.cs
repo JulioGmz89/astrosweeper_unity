@@ -1,6 +1,5 @@
 using UnityEngine;
 
-[RequireComponent(typeof(MeshRenderer))]
 public class HexTile : MonoBehaviour
 {
     [Header("Shader Settings")]
@@ -14,19 +13,28 @@ public class HexTile : MonoBehaviour
     [Header("Resource/Item Prefabs")]
     [SerializeField] private GameObject mineralPrefab;
     [SerializeField] private GameObject disarmedTrapPrefab;
-    [SerializeField] private GameObject mineralCollectiblePrefab; // Prefab del mineral recolectable
+    [SerializeField] private GameObject mineralCollectiblePrefab;
+
+    [Header("Animation Settings")]
+    [SerializeField] private string scaleControllerName = "HexTile_Scale_Controller";
+    [SerializeField] private string innerAnimatorName = "Hextile_Inner_01";
+    [SerializeField] private string outerAnimatorName = "Hextile_Outer_01";
+    [SerializeField] private string flagAnimatorName = "Hextile_Flag_01";
 
     // Propiedades de la tesela
     public Vector2Int axialCoords;
     public bool isTrap = false;
     public bool isRevealed = false;
-    public bool isFlagged = false;
+    public bool isFlagged { get; private set; } = false;
     public bool hasMineral { get; private set; } = false;
     public bool hasDisarmedTrap { get; private set; } = false;
     public int dangerValue = 0;
 
     // Componentes y referencias
-    private MeshRenderer meshRenderer;
+    private MeshRenderer[] meshRenderers;
+    private Animator innerAnimator;
+    private Animator outerAnimator;
+    private Animator flagAnimator;
     private GameObject mineralInstance;
     private GameObject disarmedTrapInstance;
     private HeatMapController heatMapController;
@@ -34,7 +42,29 @@ public class HexTile : MonoBehaviour
 
     void Awake()
     {
-        meshRenderer = GetComponent<MeshRenderer>();
+        Transform scaleController = transform.Find(scaleControllerName);
+        if (scaleController != null)
+        {
+            meshRenderers = scaleController.GetComponentsInChildren<MeshRenderer>();
+
+            Transform innerChild = scaleController.Find(innerAnimatorName);
+            if (innerChild) innerAnimator = innerChild.GetComponent<Animator>();
+            else Debug.LogWarning($"Animator child '{innerAnimatorName}' not found on {gameObject.name}", this);
+
+            Transform outerChild = scaleController.Find(outerAnimatorName);
+            if (outerChild) outerAnimator = outerChild.GetComponent<Animator>();
+            else Debug.LogWarning($"Animator child '{outerAnimatorName}' not found on {gameObject.name}", this);
+
+            Transform flagChild = scaleController.Find(flagAnimatorName);
+            if (flagChild) flagAnimator = flagChild.GetComponent<Animator>();
+            else Debug.LogWarning($"Animator child '{flagAnimatorName}' not found on {gameObject.name}", this);
+        }
+        else
+        {
+            Debug.LogError($"Child object '{scaleControllerName}' not found on {gameObject.name}. Visuals and animations will not work.", this);
+            meshRenderers = new MeshRenderer[0];
+        }
+        
         propertyBlock = new MaterialPropertyBlock();
     }
 
@@ -79,32 +109,29 @@ public class HexTile : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Aplica un color específico a la tesela usando un MaterialPropertyBlock.
-    /// </summary>
     private void ApplyColor(Color color)
     {
-        meshRenderer.GetPropertyBlock(propertyBlock);
+        if (meshRenderers == null || meshRenderers.Length == 0) return;
+        meshRenderers[0].GetPropertyBlock(propertyBlock);
         propertyBlock.SetColor(colorPropertyName, color);
-        meshRenderer.SetPropertyBlock(propertyBlock);
+        foreach (var renderer in meshRenderers)
+        {
+            renderer.SetPropertyBlock(propertyBlock);
+        }
     }
 
-    /// <summary>
-    /// Controla la visibilidad de esta tesela específica habilitando/deshabilitando su MeshRenderer.
-    /// </summary>
     public void SetVisible(bool visible)
     {
-        if (meshRenderer != null)
+        if (meshRenderers == null) return;
+        foreach (var renderer in meshRenderers)
         {
-            meshRenderer.enabled = visible;
+            if (renderer != null) renderer.enabled = visible;
         }
     }
 
     // --- LÓGICA DE INTERACCIÓN CON OBJETOS ---
     private GameObject placedItemInstance = null;
-    private GameObject flagInstance = null; // Referencia para la bandera
     public bool IsOccupied => placedItemInstance != null;
-    public bool HasFlag => flagInstance != null;
 
     public void PlaceItem(GameObject itemPrefab)
     {
@@ -116,7 +143,6 @@ public class HexTile : MonoBehaviour
 
         if (itemPrefab != null)
         {
-            // Instanciamos el objeto en el centro de la casilla, con un pequeño offset vertical.
             float yOffset = 0.5f; // Ajusta este valor según sea necesario.
             Vector3 position = transform.position + new Vector3(0, yOffset, 0);
             
@@ -124,28 +150,20 @@ public class HexTile : MonoBehaviour
         }
     }
 
-    public void PlaceFlag(GameObject flagPrefab)
+    public void SetSelected(bool selected)
     {
-        if (HasFlag)
-        {
-            Debug.LogWarning($"Tile {name} already has a flag.");
-            return;
-        }
-
-        if (flagPrefab != null)
-        {
-            float yOffset = 0.5f; // Ajusta este valor según sea necesario.
-            Vector3 position = transform.position + new Vector3(0, yOffset, 0);
-            flagInstance = Instantiate(flagPrefab, position, Quaternion.identity, transform);
-        }
+        if (innerAnimator != null) innerAnimator.SetBool("IsSelected", selected);
+        if (outerAnimator != null) outerAnimator.SetBool("IsSelected", selected);
     }
 
-    public void SetFlagVisible(bool visible)
+    public void ToggleFlag()
     {
-        if (flagInstance != null)
-        {
-            flagInstance.SetActive(visible);
-        }
+        if (isRevealed) return;
+        isFlagged = !isFlagged;
+        if (innerAnimator != null) innerAnimator.SetBool("IsFlagged", isFlagged);
+        if (outerAnimator != null) outerAnimator.SetBool("IsFlagged", isFlagged);
+        if (flagAnimator != null) flagAnimator.SetBool("IsFlagged", isFlagged);
+        UpdateVisuals();
     }
 
     public void DefuseTrap()
@@ -154,12 +172,10 @@ public class HexTile : MonoBehaviour
         {
             isTrap = false;
             hasDisarmedTrap = true;
-            Debug.Log($"Trap on tile {name} has been defused and is now a disarmed explosive.");
-
+            Debug.Log($"Trap on tile {name} has been defused.");
             if (disarmedTrapPrefab != null && disarmedTrapInstance == null)
             {
-                float yOffset = 0.5f; // Adjust as needed
-                Vector3 position = transform.position + new Vector3(0, yOffset, 0);
+                Vector3 position = transform.position + new Vector3(0, 0.5f, 0);
                 disarmedTrapInstance = Instantiate(disarmedTrapPrefab, position, Quaternion.identity, transform);
                 disarmedTrapInstance.name = "DisarmedExplosive";
             }
@@ -177,19 +193,16 @@ public class HexTile : MonoBehaviour
         {   
             if (isTrap) 
             {
-                isTrap = false; // Mineral overrides trap
+                isTrap = false;
                 Debug.LogWarning($"Tile {name} was a trap but is now a mineral deposit.");
             }
-
             if (mineralPrefab != null && mineralInstance == null)
             {
-                float yOffset = 0.5f; // Adjust as needed
-                Vector3 position = transform.position + new Vector3(0, yOffset, 0);
+                Vector3 position = transform.position + new Vector3(0, 0.5f, 0);
                 mineralInstance = Instantiate(mineralPrefab, position, Quaternion.Euler(0, Random.Range(0f, 360f), 0), transform);
                 mineralInstance.name = "MineralDeposit";
             }
         }
-        
         if (mineralInstance != null)
         {
             mineralInstance.SetActive(hasMineral);
@@ -206,18 +219,15 @@ public class HexTile : MonoBehaviour
             {
                 Destroy(mineralInstance);
             }
-
             if (mineralCollectiblePrefab != null)
             {
-                float yOffset = 0.5f; // Adjust as needed
-                Vector3 position = transform.position + new Vector3(0, yOffset, 0);
+                Vector3 position = transform.position + new Vector3(0, 0.5f, 0);
                 GameObject collectible = Instantiate(mineralCollectiblePrefab, position, Quaternion.identity);
                 collectible.name = "MineralCollectible";
-                Debug.Log($"Spawned mineral collectible at {position}.");
             }
             else
             {
-                Debug.LogWarning("MineralCollectiblePrefab is not assigned in the inspector!");
+                Debug.LogWarning("MineralCollectiblePrefab is not assigned!");
             }
         }
     }

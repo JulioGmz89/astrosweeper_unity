@@ -80,11 +80,22 @@ public class PlayerController : MonoBehaviour
 
         foreach (var hitCollider in hitColliders)
         {
-            float distanceSqr = (transform.position - hitCollider.transform.position).sqrMagnitude;
-            if (distanceSqr < closestDistanceSqr)
+            HexTile tile = hitCollider.GetComponentInParent<HexTile>();
+            if (tile == null) continue;
+
+            // Per user request, we only want to interact with the "anillo exterior".
+            // The specified hierarchy is: HexTile -> Hex_Tile_Scale_Controller -> AnilloExterior (as the 2nd child)
+            // This check is specific and might break if the prefab structure changes.
+            Transform scaleController = tile.transform.Find("HexTile_Scale_Controller");
+            if (scaleController != null && hitCollider.transform.parent == scaleController && hitCollider.transform.GetSiblingIndex() == 1)
             {
-                closestDistanceSqr = distanceSqr;
-                closestTile = hitCollider.GetComponent<HexTile>();
+                // This is the correct collider. Calculate distance to the tile's root.
+                float distanceSqr = (transform.position - tile.transform.position).sqrMagnitude;
+                if (distanceSqr < closestDistanceSqr)
+                {
+                    closestDistanceSqr = distanceSqr;
+                    closestTile = tile;
+                }
             }
         }
         currentTargetTile = closestTile;
@@ -187,6 +198,28 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void OnFlag(InputAction.CallbackContext context)
+    {
+        if (!context.performed) return;
+
+        HexTile tileToFlag = null;
+        GameState currentState = GameManager.Instance.CurrentState;
+
+        if (currentState == GameState.Prospecting)
+        {
+            tileToFlag = currentTargetTile;
+        }
+        else if (currentState == GameState.TileSelection)
+        {
+            tileToFlag = ProspectingManager.Instance.CurrentlySelectedTile;
+        }
+
+        if (tileToFlag != null)
+        {
+            tileToFlag.ToggleFlag();
+        }
+    }
+
     // --- LÓGICA PRIVADA Y DE GESTIÓN DE ESTADO ---
 
     private void HandleGameStateChange(GameState newState)
@@ -247,11 +280,9 @@ public class PlayerController : MonoBehaviour
            (GameManager.Instance.CurrentState == GameState.CarryingExplosive || GameManager.Instance.CurrentState == GameState.ThrowObject))
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, throwRange);
         }
     }
 
-    // --- NUEVO MÉTODO DE INPUT ---
     public void OnThrowMode(InputAction.CallbackContext context)
     {
         if (!context.performed) return;

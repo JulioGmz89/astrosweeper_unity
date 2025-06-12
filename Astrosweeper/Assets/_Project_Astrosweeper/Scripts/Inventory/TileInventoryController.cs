@@ -264,9 +264,14 @@ public class TileInventoryController : MonoBehaviour
         // Lógica de uso diferenciada por tipo de item
         if (currentItem.itemType == InventoryItem.ItemType.Flag)
         {
-            // La bandera se puede colocar incluso si el tile está ocupado
-            currentItem.Use(targetTile);
-            targetTile.PlaceFlag(currentItem.placedPrefab);
+            // La bandera ahora usa el sistema de animación y no puede ponerse en un tile revelado.
+            if (targetTile.isRevealed)
+            {
+                Debug.LogWarning("Cannot flag a revealed tile.");
+                return;
+            }
+            currentItem.Use(targetTile); // Consume el item del inventario
+            targetTile.ToggleFlag(); // Llama a la nueva función de animación
         }
         else
         {

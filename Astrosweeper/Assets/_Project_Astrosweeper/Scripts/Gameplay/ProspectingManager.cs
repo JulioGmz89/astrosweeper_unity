@@ -146,16 +146,22 @@ public class ProspectingManager : MonoBehaviour
     public void SetSelectedTile(HexTile newTile)
     {
         if (newTile == CurrentlySelectedTile) return;
-        
-        // TODO: Lógica para des-resaltar la tesela anterior (CurrentlySelectedTile)
-        CurrentlySelectedTile = newTile;
-        // TODO: Lógica para aplicar un resaltado a la nueva tesela seleccionada
-        Debug.Log($"Nueva tesela seleccionada: {CurrentlySelectedTile.name}");
 
-        // --- LÍNEA 2: HACER SONAR EL TIMBRE (INVOCAR EL EVENTO) ---
-        // Aquí avisamos a todos los que estén escuchando (el inventario) que
-        // el tile ha cambiado, y les pasamos el nuevo tile.
-        OnSelectedTileChanged?.Invoke(newTile);
+        // Deselecciona la tesela anterior si existía.
+        if (CurrentlySelectedTile != null)
+        {
+            CurrentlySelectedTile.SetSelected(false);
+        }
+
+        // Actualiza la tesela y la selecciona.
+        CurrentlySelectedTile = newTile;
+        if (CurrentlySelectedTile != null)
+        {
+            CurrentlySelectedTile.SetSelected(true);
+        }
+
+        // Notifica a los suscriptores que la tesela seleccionada ha cambiado.
+        OnSelectedTileChanged?.Invoke(CurrentlySelectedTile);
     }
 
     /// <summary>
