@@ -8,6 +8,7 @@ public class ProspectingManager : MonoBehaviour
     public static ProspectingManager Instance { get; private set; }
 
     public event Action<HexTile> OnSelectedTileChanged;
+    public event Action<int, int> OnMineralQuotaUpdated; // int: current, int: total
 
     [Header("Grid Settings")]
     [SerializeField] private GameObject hexGridContainer;
@@ -16,6 +17,15 @@ public class ProspectingManager : MonoBehaviour
     [SerializeField, Range(0, 1)] private float trapDensity = 0.15f;
     [SerializeField] private int safeZoneRadius = 1;
 
+    [Header("Mineral Settings")]
+    [SerializeField] private int baseMineralQuota = 8;
+    [SerializeField] private ClusterSizeRatio[] clusterSizeRatios = new ClusterSizeRatio[]
+    {
+        new ClusterSizeRatio(1, 0.6f),
+        new ClusterSizeRatio(2, 0.3f),
+        new ClusterSizeRatio(3, 0.1f)
+    };
+
     [Header("System References")]
     [SerializeField] private HeatMapController heatMapController;
 
@@ -23,10 +33,21 @@ public class ProspectingManager : MonoBehaviour
     // Guardará una referencia a la tesela que el jugador tiene seleccionada en el modo de selección.
     public HexTile CurrentlySelectedTile { get; private set; }
 
-    
+    public int MineralsCollected { get; private set; } = 0;
+    public int TotalMineralQuota { get; private set; } = 0;
+
     // --- Variables Privadas ---
     private Dictionary<Vector2Int, HexTile> hexGrid = new Dictionary<Vector2Int, HexTile>();
     private float hexOuterRadius = 1f;
+    public void CollectMineral()
+    {
+        MineralsCollected++;
+        Debug.Log($"Mineral collected! Total: {MineralsCollected}/{TotalMineralQuota}");
+        OnMineralQuotaUpdated?.Invoke(MineralsCollected, TotalMineralQuota);
+
+        // Future: Check for win condition here
+    }
+
     private static readonly Vector2Int[] neighborDirections = {
         new Vector2Int(1, 0), new Vector2Int(1, -1), new Vector2Int(0, -1),
         new Vector2Int(-1, 0), new Vector2Int(-1, 1), new Vector2Int(0, 1)
@@ -62,9 +83,11 @@ public class ProspectingManager : MonoBehaviour
 
     void GenerateAndSetupGrid()
     {
+        TotalMineralQuota = baseMineralQuota;
         GenerateGrid();
         List<HexTile> safeZoneTiles = GetSafeZoneTiles();
-        PlaceTraps(safeZoneTiles);
+        List<HexTile> trapTiles = PlaceTraps(safeZoneTiles);
+        PlaceMinerals(safeZoneTiles, trapTiles);
         CalculateDangerValues();
         
         foreach (var tile in hexGrid.Values)
@@ -112,9 +135,17 @@ public class ProspectingManager : MonoBehaviour
     /// <summary>
     /// Establece una nueva tesela como la seleccionada actualmente.
     /// </summary>
+    public void SelectFirstTile()
+    {
+        if (hexGrid.Count > 0)
+        {
+            SetSelectedTile(hexGrid.Values.First());
+        }
+    }
+
     public void SetSelectedTile(HexTile newTile)
     {
-        if (newTile == null || newTile == CurrentlySelectedTile) return;
+        if (newTile == CurrentlySelectedTile) return;
         
         // TODO: Lógica para des-resaltar la tesela anterior (CurrentlySelectedTile)
         CurrentlySelectedTile = newTile;
@@ -188,7 +219,7 @@ public class ProspectingManager : MonoBehaviour
         }
     }
     
-    private void PlaceTraps(List<HexTile> forbiddenTiles)
+    private List<HexTile> PlaceTraps(List<HexTile> forbiddenTiles)
     {
         List<HexTile> validTrapTiles = hexGrid.Values.Except(forbiddenTiles).ToList();
 
@@ -207,6 +238,7 @@ public class ProspectingManager : MonoBehaviour
         }
 
         Debug.Log($"Se colocaron {trapsToPlace} trampas en el tablero.");
+        return trapLocations;
     }
     
     void GenerateGrid()
@@ -274,5 +306,99 @@ public class ProspectingManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void PlaceMinerals(List<HexTile> safeZone, List<HexTile> traps)
+    {
+        List<HexTile> forbiddenTiles = new List<HexTile>(safeZone);
+        forbiddenTiles.AddRange(traps);
+        List<HexTile> availableTiles = hexGrid.Values.Except(forbiddenTiles).ToList();
+
+        int mineralsPlaced = 0;
+        while (mineralsPlaced < baseMineralQuota && availableTiles.Count > 0)
+        {
+            int clusterSize = GetRandomClusterSize();
+            bool success = TryPlaceCluster(clusterSize, availableTiles);
+            if (success)
+            {
+                mineralsPlaced += clusterSize;
+            }
+            else
+            {
+                // Could not find space for the cluster, try a smaller one or break.
+                if (clusterSize > 1) continue; // Try again with a new random size
+                else break; // If we can't even place a single mineral, stop.
+            }
+        }
+        Debug.Log($"Placed {mineralsPlaced} mineral deposits.");
+    }
+
+    private bool TryPlaceCluster(int size, List<HexTile> availableTiles)
+    {
+        System.Random rng = new System.Random();
+        List<HexTile> shuffledTiles = availableTiles.OrderBy(t => rng.Next()).ToList();
+
+        foreach (HexTile startTile in shuffledTiles)
+        {
+            List<HexTile> cluster = new List<HexTile> { startTile };
+            if (FindCluster(startTile, size, cluster, availableTiles))
+            {
+                foreach (HexTile tile in cluster)
+                {
+                    tile.SetMineralState(true);
+                    availableTiles.Remove(tile);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private bool FindCluster(HexTile currentTile, int remainingSize, List<HexTile> cluster, List<HexTile> available)
+    {
+        if (cluster.Count == remainingSize) return true;
+
+        foreach (var dir in neighborDirections.OrderBy(d => Guid.NewGuid()))
+        {
+            if (hexGrid.TryGetValue(currentTile.axialCoords + dir, out HexTile neighbor) && 
+                available.Contains(neighbor) && !cluster.Contains(neighbor))
+            {
+                cluster.Add(neighbor);
+                if (FindCluster(neighbor, remainingSize, cluster, available)) return true;
+                cluster.Remove(neighbor); // Backtrack
+            }
+        }
+        return false;
+    }
+
+    private int GetRandomClusterSize()
+    {
+        float totalRatio = clusterSizeRatios.Sum(r => r.ratio);
+        float randomValue = UnityEngine.Random.Range(0, totalRatio);
+        float cumulativeRatio = 0f;
+
+        foreach (var ratioInfo in clusterSizeRatios)
+        {
+            cumulativeRatio += ratioInfo.ratio;
+            if (randomValue <= cumulativeRatio)
+            {
+                return ratioInfo.size;
+            }
+        }
+        return clusterSizeRatios.Last().size; // Fallback
+    }
+}
+
+[System.Serializable]
+public struct ClusterSizeRatio
+{
+    public int size;
+    [Range(0,1)]
+    public float ratio;
+
+    public ClusterSizeRatio(int size, float ratio)
+    {
+        this.size = size;
+        this.ratio = ratio;
     }
 }

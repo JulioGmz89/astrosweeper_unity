@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Interaction Settings")]
     [SerializeField] private float interactionRadius = 2f;
+    [SerializeField] private float throwRange = 10f; // Rango para lanzar el explosivo
     [SerializeField] private LayerMask tileLayer;
 
     [Header("Movement Settings")]
@@ -18,6 +19,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Visuals")]
     [SerializeField] private GameObject holoCone;
+    [SerializeField] private GameObject carriedExplosiveVisual; // Visual del explosivo que carga el jugador
 
     // --- Referencias de Componentes ---
     private PlayerMovement playerMovement;
@@ -51,7 +53,7 @@ public class PlayerController : MonoBehaviour
         moveInputVector = playerInput.actions["Move"].ReadValue<Vector2>();
 
         // --- Lógica de Movimiento Continuo ---
-        if (currentState == GameState.Exploration)
+        if (currentState == GameState.Exploration || currentState == GameState.CarryingExplosive)
         {
             playerMovement.ProcessMove(moveInputVector);
         }
@@ -103,6 +105,12 @@ public class PlayerController : MonoBehaviour
     {
         if (!context.performed) return;
 
+        if (GameManager.Instance.CurrentState == GameState.CarryingExplosive)
+        {
+            DetonateCarriedExplosive();
+            return;
+        }
+
         // Obtenemos la instancia del GameManager una sola vez.
         var gameManager = GameManager.Instance;
 
@@ -124,6 +132,7 @@ public class PlayerController : MonoBehaviour
     public void OnConfirmSelection(InputAction.CallbackContext context)
     {
         if (!context.performed) return;
+
         GameState currentState = GameManager.Instance.CurrentState;
 
         if (currentState == GameState.Prospecting && currentTargetTile != null)
@@ -139,44 +148,78 @@ public class PlayerController : MonoBehaviour
         }
         else if (currentState == GameState.TileSelection)
         {
-            GameManager.Instance.SwitchState(GameState.Prospecting);
+            HexTile selectedTile = ProspectingManager.Instance.CurrentlySelectedTile;
+            if (selectedTile != null)
+            {
+                ProspectingManager.Instance.RevealTile(selectedTile);
+            }
         }
     }
 
     public void OnDisarm(InputAction.CallbackContext context)
     {
-        if (context.performed && GameManager.Instance.CurrentState == GameState.TileSelection)
+        if (!context.performed) return;
+
+        GameState currentState = GameManager.Instance.CurrentState;
+
+        if (currentState == GameState.TileSelection)
         {
             HexTile tileToDisarm = ProspectingManager.Instance.CurrentlySelectedTile;
-            if (tileToDisarm != null)
+            if (tileToDisarm != null && tileToDisarm.isTrap)
+            {
+                tileToDisarm.DefuseTrap();
+                GameManager.Instance.SwitchState(GameState.Prospecting);
+            }
+            else if (tileToDisarm != null)
             {
                 ProspectingManager.Instance.RevealTile(tileToDisarm);
             }
         }
+        else if (currentState == GameState.ThrowObject)
+        {
+            HexTile targetTile = ProspectingManager.Instance.CurrentlySelectedTile;
+            if (targetTile != null)
+            {
+                ThrowExplosive(targetTile);
+            }
+        }
     }
-    
+
     // --- LÓGICA PRIVADA Y DE GESTIÓN DE ESTADO ---
 
     private void HandleGameStateChange(GameState newState)
     {
-        playerMovement.enabled = (newState == GameState.Exploration);
-        if (playerCamera != null)
-            playerCamera.enabled = (newState == GameState.Exploration || newState == GameState.Prospecting);
-        if (tileSelectionCamera != null)
-            tileSelectionCamera.enabled = (newState == GameState.TileSelection);
+        playerMovement.enabled = (newState == GameState.Exploration || newState == GameState.CarryingExplosive);
 
-        // --- Lógica del HoloCone ---
+        if (playerCamera != null)
+            playerCamera.enabled = (newState == GameState.Exploration || newState == GameState.Prospecting || newState == GameState.CarryingExplosive);
+        
+        if (tileSelectionCamera != null)
+            tileSelectionCamera.enabled = (newState == GameState.TileSelection || newState == GameState.ThrowObject);
+
         if (holoCone != null)
-        {
-            holoCone.SetActive(newState == GameState.Prospecting || newState == GameState.TileSelection);
-        }
+            holoCone.SetActive(newState == GameState.Prospecting || newState == GameState.TileSelection || newState == GameState.ThrowObject);
+
+        if (carriedExplosiveVisual != null)
+            // Keep the visual active while carrying and aiming the throw
+            carriedExplosiveVisual.SetActive(newState == GameState.CarryingExplosive || newState == GameState.ThrowObject);
 
         if (newState == GameState.Exploration)
         {
             currentTargetTile = null;
         }
+
+        if (newState == GameState.ThrowObject)
+        {
+            HexTile selectedTile = ProspectingManager.Instance.CurrentlySelectedTile;
+            if (tileSelectionCamera != null && selectedTile != null)
+            {
+                tileSelectionCamera.Follow = selectedTile.transform;
+                tileSelectionCamera.LookAt = selectedTile.transform;
+            }
+        }
     }
-    
+
     private void NavigateTiles(Vector2 moveInput)
     {
         HexTile currentSelection = ProspectingManager.Instance.CurrentlySelectedTile;
@@ -196,5 +239,80 @@ public class PlayerController : MonoBehaviour
     {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, interactionRadius);
+
+        // Draw the throw range when carrying an explosive
+        if (GameManager.Instance != null && 
+           (GameManager.Instance.CurrentState == GameState.CarryingExplosive || GameManager.Instance.CurrentState == GameState.ThrowObject))
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, throwRange);
+        }
     }
+
+    // --- NUEVO MÉTODO DE INPUT ---
+    public void OnThrowMode(InputAction.CallbackContext context)
+    {
+        if (!context.performed || GameManager.Instance.CurrentState != GameState.CarryingExplosive) return;
+
+        GameManager.Instance.EnterThrowObjectMode();
+        FindClosestTile();
+        if (currentTargetTile != null)
+        {
+            ProspectingManager.Instance.SetSelectedTile(currentTargetTile);
+        }
+        else
+        {
+            // If no tile is nearby, select the first tile of the grid as a fallback
+            ProspectingManager.Instance.SelectFirstTile();
+        }
+    }
+
+    private void ThrowExplosive(HexTile targetTile)
+    {
+        float distance = Vector3.Distance(transform.position, targetTile.transform.position);
+        if (distance > throwRange)
+        {
+            Debug.LogWarning($"Target {targetTile.name} is out of range! ({distance:F1}m > {throwRange}m)");
+            // Future: Add visual/sound feedback to the player
+            return;
+        }
+
+        Debug.Log($"Throwing explosive at {targetTile.name}.");
+        if (targetTile.hasMineral)
+        {
+            targetTile.ExtractMineral();
+        }
+        else
+        {
+            Debug.Log("Threw explosive, but no mineral was on the target tile.");
+        }
+        GameManager.Instance.EnterExplorationMode();
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (GameManager.Instance.CurrentState != GameState.Exploration) return;
+
+        if (other.CompareTag("DisarmedExplosive"))
+        {
+            Debug.Log("Player picked up a disarmed explosive.");
+            Destroy(other.gameObject);
+            GameManager.Instance.EnterCarryingExplosiveMode();
+        }
+        else if (other.CompareTag("MineralCollectible"))
+        {
+            Debug.Log("Player collected a mineral.");
+            ProspectingManager.Instance.CollectMineral();
+            Destroy(other.gameObject);
+        }
+    }
+
+    public void DetonateCarriedExplosive()
+    {
+        Debug.LogWarning("BOOM! Player detonated the carried explosive!");
+        // Here you would add damage logic to the player
+        GameManager.Instance.EnterExplorationMode();
+    }
+
+
 }
