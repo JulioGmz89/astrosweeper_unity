@@ -153,11 +153,8 @@ public class PlayerController : MonoBehaviour
         }
         else if (currentState == GameState.TileSelection)
         {
-            HexTile selectedTile = ProspectingManager.Instance.CurrentlySelectedTile;
-            if (selectedTile != null)
-            {
-                ProspectingManager.Instance.RevealTile(selectedTile);
-            }
+            // This action now serves to go back to the orbital view.
+            GameManager.Instance.EnterProspectingMode();
         }
     }
 
@@ -257,23 +254,33 @@ public class PlayerController : MonoBehaviour
     // --- NUEVO MÉTODO DE INPUT ---
     public void OnThrowMode(InputAction.CallbackContext context)
     {
-        if (!context.performed || GameManager.Instance.CurrentState != GameState.CarryingExplosive) return;
+        if (!context.performed) return;
 
-        // --- REORDERED LOGIC ---
-        // First, find and select the closest tile to start aiming from.
-        FindClosestTile();
-        if (currentTargetTile != null)
-        {
-            ProspectingManager.Instance.SetSelectedTile(currentTargetTile);
-        }
-        else
-        {
-            // If no tile is nearby, select the first tile of the grid as a fallback.
-            ProspectingManager.Instance.SelectFirstTile();
-        }
+        var gm = GameManager.Instance;
 
-        // Then, switch the game state. This ensures the camera focuses on the correct tile.
-        GameManager.Instance.EnterThrowObjectMode();
+        if (gm.CurrentState == GameState.CarryingExplosive)
+        {
+            // --- REORDERED LOGIC ---
+            // First, find and select the closest tile to start aiming from.
+            FindClosestTile();
+            if (currentTargetTile != null)
+            {
+                ProspectingManager.Instance.SetSelectedTile(currentTargetTile);
+            }
+            else
+            {
+                // If no tile is nearby, select the first tile of the grid as a fallback.
+                ProspectingManager.Instance.SelectFirstTile();
+            }
+
+            // Then, switch the game state. This ensures the camera focuses on the correct tile.
+            gm.EnterThrowObjectMode();
+        }
+        else if (gm.CurrentState == GameState.ThrowObject)
+        {
+            // If we are already aiming, this same key will cancel and return to carrying mode.
+            gm.EnterCarryingExplosiveMode();
+        }
     }
 
     private void ThrowExplosive(HexTile targetTile)

@@ -82,8 +82,8 @@ public class GameManager : MonoBehaviour
 
     public void EnterProspectingMode()
     {
-        // Solo se puede entrar a Prospecting desde Exploration.
-        if (CurrentState == GameState.Exploration)
+        // Can enter Prospecting from Exploration, or cancel back from TileSelection.
+        if (CurrentState == GameState.Exploration || CurrentState == GameState.TileSelection)
         {
             SwitchState(GameState.Prospecting);
         }
@@ -108,7 +108,8 @@ public class GameManager : MonoBehaviour
 
     public void EnterCarryingExplosiveMode()
     {
-        if (CurrentState == GameState.Exploration)
+        // Can enter this mode from Exploration (on pickup) or from ThrowObject (on cancel).
+        if (CurrentState == GameState.Exploration || CurrentState == GameState.ThrowObject)
         {
             SwitchState(GameState.CarryingExplosive);
         }
