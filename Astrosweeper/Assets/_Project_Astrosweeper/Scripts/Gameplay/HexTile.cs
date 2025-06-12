@@ -11,6 +11,7 @@ public class HexTile : MonoBehaviour
     [ColorUsage(true, true)] [SerializeField] private Color flaggedColor = Color.cyan;
     [ColorUsage(true, true)] [SerializeField] private Color trapColor = Color.red;
 
+
     [Header("Resource/Item Prefabs")]
     [SerializeField] private GameObject mineralPrefab;
     [SerializeField] private GameObject disarmedTrapPrefab;
@@ -30,6 +31,7 @@ public class HexTile : MonoBehaviour
     public bool hasMineral { get; private set; } = false;
     public bool hasDisarmedTrap { get; private set; } = false;
     public int dangerValue = 0;
+    public float selectedIntensity = 1.55f;
 
     // Componentes y referencias
     private MeshRenderer[] meshRenderers;
@@ -85,28 +87,14 @@ public class HexTile : MonoBehaviour
 
     public void UpdateVisuals()
     {
-        if (!isRevealed)
-        {
-            SetVisible(true);
-            Color initialColor = isFlagged ? flaggedColor : defaultColor;
-            ApplyColor(initialColor);
-            return;
-        }
-
-        if (isTrap)
-        {
-            SetVisible(true);
-            ApplyColor(trapColor);
-        }
-        else if (dangerValue == 0)
+        if (isRevealed && dangerValue == 0 && !isTrap)
         {
             SetVisible(false);
         }
-        else // dangerValue > 0
+        else
         {
             SetVisible(true);
-            Color dangerColor = heatMapController.GetColorForValue(dangerValue);
-            ApplyColor(dangerColor);
+            ApplyColor(GetColorForCurrentState());
         }
     }
 
@@ -155,6 +143,39 @@ public class HexTile : MonoBehaviour
     {
         if (innerAnimator != null) innerAnimator.SetBool("IsSelected", selected);
         if (outerAnimator != null) outerAnimator.SetBool("IsSelected", selected);
+
+        if (selected)
+        {
+            Color baseColor = GetColorForCurrentState();
+            
+            Color intensifiedColor = new Color(baseColor.r * selectedIntensity, baseColor.g * selectedIntensity, baseColor.b * selectedIntensity, baseColor.a);
+
+            ApplyColor(intensifiedColor);
+        }
+        else
+        {
+            UpdateVisuals();
+        }
+    }
+
+    private Color GetColorForCurrentState()
+    {
+        if (!isRevealed)
+        {
+            return isFlagged ? flaggedColor : defaultColor;
+        }
+
+        if (isTrap)
+        {
+            return trapColor;
+        }
+        
+        if (dangerValue > 0)
+        {
+            return heatMapController.GetColorForValue(dangerValue);
+        }
+
+        return defaultColor; // Fallback for revealed, danger 0 tiles
     }
 
     public void ToggleFlag()

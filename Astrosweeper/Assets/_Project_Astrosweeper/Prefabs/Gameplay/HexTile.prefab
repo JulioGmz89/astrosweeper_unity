@@ -106,6 +106,7 @@ MonoBehaviour:
   isTrap: 0
   isRevealed: 0
   dangerValue: 0
+  selectedIntensity: 1.4
 --- !u!1 &6370891518630236816
 GameObject:
   m_ObjectHideFlags: 0
