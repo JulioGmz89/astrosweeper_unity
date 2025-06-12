@@ -177,7 +177,7 @@ public class HexTile : MonoBehaviour
             if (disarmedTrapPrefab != null && disarmedTrapInstance == null)
             {
                 Vector3 position = transform.position + new Vector3(0, 0.5f, 0);
-                disarmedTrapInstance = Instantiate(disarmedTrapPrefab, position, Quaternion.identity, transform);
+                disarmedTrapInstance = Instantiate(disarmedTrapPrefab, position, Quaternion.Euler(0, Random.Range(0f, 360f), 90f), transform);
                 disarmedTrapInstance.name = "DisarmedExplosive";
             }
         }
@@ -223,7 +223,7 @@ public class HexTile : MonoBehaviour
             if (mineralCollectiblePrefab != null)
             {
                 Vector3 position = transform.position + new Vector3(0, 0.5f, 0);
-                GameObject collectible = Instantiate(mineralCollectiblePrefab, position, Quaternion.identity);
+                GameObject collectible = Instantiate(mineralCollectiblePrefab, position, Quaternion.Euler(-90, Random.Range(-90f, 360f), 90f));
                 collectible.name = "MineralCollectible";
             }
             else
