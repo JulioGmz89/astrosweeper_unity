@@ -73,21 +73,24 @@ public class TileInventoryController : MonoBehaviour
     // --- LÓGICA DE ESTADO MEJORADA ---
     private void HandleGameStateChanged(GameState newState)
     {
-        if (newState == GameState.TileSelection)
+        // The inventory should only be visible during tile selection.
+        bool shouldBeVisible = (newState == GameState.TileSelection);
+
+        inventoryUIParent.SetActive(shouldBeVisible);
+
+        if (shouldBeVisible)
         {
-            // Al entrar en el estado, mostramos el inventario inmediatamente
-            // en la posición del tile que ya está seleccionado.
+            // When entering the state, show the inventory immediately
+            // at the position of the already selected tile.
             UpdatePosition(prospectingManager.CurrentlySelectedTile);
 
-            // Y nos suscribimos al input de navegación del inventario.
+            // And subscribe to the inventory navigation input.
             if (navigateAction != null) navigateAction.performed += OnNavigate;
             if (useItemAction != null) useItemAction.performed += OnUseItem;
         }
         else
         {
-            // Al salir de este estado, nos aseguramos de ocultar la UI
-            // y de dejar de escuchar el input.
-            inventoryUIParent.SetActive(false);
+            // When leaving the state, ensure we unsubscribe from the input.
             if (navigateAction != null) navigateAction.performed -= OnNavigate;
             if (useItemAction != null) useItemAction.performed -= OnUseItem;
         }
@@ -96,6 +99,13 @@ public class TileInventoryController : MonoBehaviour
     // --- LÓGICA DE POSICIÓN REFINADA ---
     private void UpdatePosition(HexTile targetTile)
     {
+        // Only update the position and show the UI if we are in the correct state.
+        if (GameManager.Instance.CurrentState != GameState.TileSelection)
+        {
+            inventoryUIParent.SetActive(false); // Ensure it's off
+            return;
+        }
+
         // Si no hay un tile objetivo, no hay nada que hacer.
         if (targetTile == null)
         {

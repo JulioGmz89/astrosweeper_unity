@@ -94,7 +94,9 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public void OnMove(InputAction.CallbackContext context)
     {
-        if (GameManager.Instance.CurrentState == GameState.TileSelection && context.performed)
+        // Allow tile navigation in both standard selection and throw-aiming modes.
+        if ((GameManager.Instance.CurrentState == GameState.TileSelection || GameManager.Instance.CurrentState == GameState.ThrowObject) 
+            && context.performed)
         {
             Vector2 moveInput = context.ReadValue<Vector2>();
             NavigateTiles(moveInput);
@@ -254,7 +256,8 @@ public class PlayerController : MonoBehaviour
     {
         if (!context.performed || GameManager.Instance.CurrentState != GameState.CarryingExplosive) return;
 
-        GameManager.Instance.EnterThrowObjectMode();
+        // --- REORDERED LOGIC ---
+        // First, find and select the closest tile to start aiming from.
         FindClosestTile();
         if (currentTargetTile != null)
         {
@@ -262,9 +265,12 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            // If no tile is nearby, select the first tile of the grid as a fallback
+            // If no tile is nearby, select the first tile of the grid as a fallback.
             ProspectingManager.Instance.SelectFirstTile();
         }
+
+        // Then, switch the game state. This ensures the camera focuses on the correct tile.
+        GameManager.Instance.EnterThrowObjectMode();
     }
 
     private void ThrowExplosive(HexTile targetTile)
