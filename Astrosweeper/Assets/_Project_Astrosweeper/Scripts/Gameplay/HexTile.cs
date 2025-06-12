@@ -6,9 +6,10 @@ public class HexTile : MonoBehaviour
     [SerializeField] private string colorPropertyName = "_BaseColor";
 
     [Header("Visuals")]
-    [SerializeField] private Color defaultColor = Color.gray;
-    [SerializeField] private Color flaggedColor = Color.cyan;
-    [SerializeField] private Color trapColor = Color.red;
+    // --- ¡AQUÍ ESTÁN LOS CAMBIOS! ---
+    [ColorUsage(true, true)] [SerializeField] private Color defaultColor = Color.gray;
+    [ColorUsage(true, true)] [SerializeField] private Color flaggedColor = Color.cyan;
+    [ColorUsage(true, true)] [SerializeField] private Color trapColor = Color.red;
 
     [Header("Resource/Item Prefabs")]
     [SerializeField] private GameObject mineralPrefab;
@@ -190,7 +191,7 @@ public class HexTile : MonoBehaviour
     {
         hasMineral = state;
         if (hasMineral)
-        {   
+        { 
             if (isTrap) 
             {
                 isTrap = false;

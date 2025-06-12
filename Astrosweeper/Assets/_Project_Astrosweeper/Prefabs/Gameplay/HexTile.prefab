@@ -92,9 +92,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   colorPropertyName: _Color
-  defaultColor: {r: 0.43137255, g: 0.8392157, b: 0.8352941, a: 1}
-  flaggedColor: {r: 0, g: 1, b: 1, a: 1}
-  trapColor: {r: 1, g: 0, b: 0, a: 1}
+  defaultColor: {r: 0.8627451, g: 1.6784314, b: 1.6705883, a: 1}
+  flaggedColor: {r: 0.78000003, g: 1.5, b: 1.5, a: 1}
+  trapColor: {r: 1.6603774, g: 0.3211107, b: 0.3211107, a: 1}
   mineralPrefab: {fileID: 3653952280083137150, guid: 58c6ab1791e4c3e4fa70c4e1f1b54668, type: 3}
   disarmedTrapPrefab: {fileID: 9007010093588732088, guid: 45f135c50228bc84ebc539b2d145be46, type: 3}
   mineralCollectiblePrefab: {fileID: 5584644469462266752, guid: 9512d73a438c4ae4fbb028a1e5111f04, type: 3}
@@ -428,7 +428,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: b17dbd68b2d600045980d9bcdd3d0b8f, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: ab7c7abe94c94154ba8ea25f5a8580d5, type: 2}
+      objectReference: {fileID: 2100000, guid: e77760d7b08f1fb4e8447e43e799aba1, type: 2}
     - target: {fileID: 919132149155446097, guid: b17dbd68b2d600045980d9bcdd3d0b8f, type: 3}
       propertyPath: m_Name
       value: Hextile_Flag_01
