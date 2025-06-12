@@ -249,6 +249,9 @@ public class TileInventoryController : MonoBehaviour
     
     public void OnUseItem(InputAction.CallbackContext context)
     {
+        // Only allow item use in the TileSelection state to prevent input conflicts.
+        if (GameManager.Instance.CurrentState != GameState.TileSelection) return;
+
         if (!context.performed) return;
 
         HexTile targetTile = prospectingManager.CurrentlySelectedTile;
