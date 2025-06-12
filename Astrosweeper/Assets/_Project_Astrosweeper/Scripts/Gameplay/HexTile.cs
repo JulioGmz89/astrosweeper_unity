@@ -185,7 +185,7 @@ public class HexTile : MonoBehaviour
             {
                 float yOffset = 0.5f; // Adjust as needed
                 Vector3 position = transform.position + new Vector3(0, yOffset, 0);
-                                mineralInstance = Instantiate(mineralPrefab, position, Quaternion.Euler(0, Random.Range(0f, 360f), 0), transform);
+                mineralInstance = Instantiate(mineralPrefab, position, Quaternion.Euler(0, Random.Range(0f, 360f), 0), transform);
                 mineralInstance.name = "MineralDeposit";
             }
         }
