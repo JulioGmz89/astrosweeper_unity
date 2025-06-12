@@ -11,15 +11,24 @@ public class HexTile : MonoBehaviour
     [SerializeField] private Color flaggedColor = Color.cyan;
     [SerializeField] private Color trapColor = Color.red;
 
+    [Header("Resource/Item Prefabs")]
+    [SerializeField] private GameObject mineralPrefab;
+    [SerializeField] private GameObject disarmedTrapPrefab;
+    [SerializeField] private GameObject mineralCollectiblePrefab; // Prefab del mineral recolectable
+
     // Propiedades de la tesela
     public Vector2Int axialCoords;
     public bool isTrap = false;
     public bool isRevealed = false;
     public bool isFlagged = false;
+    public bool hasMineral { get; private set; } = false;
+    public bool hasDisarmedTrap { get; private set; } = false;
     public int dangerValue = 0;
 
     // Componentes y referencias
     private MeshRenderer meshRenderer;
+    private GameObject mineralInstance;
+    private GameObject disarmedTrapInstance;
     private HeatMapController heatMapController;
     private MaterialPropertyBlock propertyBlock;
 
@@ -144,11 +153,72 @@ public class HexTile : MonoBehaviour
         if (isTrap)
         {
             isTrap = false;
-            Debug.Log($"Trap on tile {name} has been defused.");
+            hasDisarmedTrap = true;
+            Debug.Log($"Trap on tile {name} has been defused and is now a disarmed explosive.");
+
+            if (disarmedTrapPrefab != null && disarmedTrapInstance == null)
+            {
+                float yOffset = 0.5f; // Adjust as needed
+                Vector3 position = transform.position + new Vector3(0, yOffset, 0);
+                disarmedTrapInstance = Instantiate(disarmedTrapPrefab, position, Quaternion.identity, transform);
+                disarmedTrapInstance.name = "DisarmedExplosive";
+            }
         }
         else
         {
             Debug.Log($"Used Defuse on tile {name}, but it had no trap.");
+        }
+    }
+
+    public void SetMineralState(bool state)
+    {
+        hasMineral = state;
+        if (hasMineral)
+        {   
+            if (isTrap) 
+            {
+                isTrap = false; // Mineral overrides trap
+                Debug.LogWarning($"Tile {name} was a trap but is now a mineral deposit.");
+            }
+
+            if (mineralPrefab != null && mineralInstance == null)
+            {
+                float yOffset = 0.5f; // Adjust as needed
+                Vector3 position = transform.position + new Vector3(0, yOffset, 0);
+                mineralInstance = Instantiate(mineralPrefab, position, Quaternion.identity, transform);
+                mineralInstance.name = "MineralDeposit";
+            }
+        }
+        
+        if (mineralInstance != null)
+        {
+            mineralInstance.SetActive(hasMineral);
+        }
+    }
+
+    public void ExtractMineral()
+    {
+        if (hasMineral)
+        {
+            Debug.Log($"Extracting mineral from {name}.");
+            hasMineral = false;
+            if (mineralInstance != null)
+            {
+                Destroy(mineralInstance);
+            }
+
+            if (mineralCollectiblePrefab != null)
+            {
+                float yOffset = 0.5f; // Adjust as needed
+                Vector3 position = transform.position + new Vector3(0, yOffset, 0);
+                GameObject collectible = Instantiate(mineralCollectiblePrefab, position, Quaternion.identity);
+                collectible.name = "MineralCollectible";
+                Debug.Log($"Spawned mineral collectible at {position}.");
+            }
+            else
+            {
+                Debug.LogWarning("MineralCollectiblePrefab is not assigned in the inspector!");
+            }
         }
     }
 }

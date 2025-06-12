@@ -9,7 +9,9 @@ public enum GameState
 {
     Exploration,    // El jugador se mueve libremente por el mundo en 3D.
     Prospecting,    // El jugador observa la cuadrícula holográfica desde una vista orbital.
-    TileSelection   // El jugador navega y selecciona tiles individuales en la cuadrícula.
+    TileSelection,  // El jugador navega y selecciona tiles individuales en la cuadrícula.
+    CarryingExplosive, // El jugador transporta un explosivo con movimiento limitado.
+    ThrowObject     // El jugador está apuntando para lanzar un explosivo.
 }
 
 /// <summary>
@@ -89,10 +91,26 @@ public class GameManager : MonoBehaviour
 
     public void EnterExplorationMode()
     {
-        // Se puede volver a Exploration desde Prospecting o TileSelection.
-        if (CurrentState == GameState.Prospecting || CurrentState == GameState.TileSelection)
+        // Se puede volver a Exploration desde varios estados.
+        if (CurrentState == GameState.Prospecting || CurrentState == GameState.TileSelection || CurrentState == GameState.CarryingExplosive || CurrentState == GameState.ThrowObject)
         {
             SwitchState(GameState.Exploration);
+        }
+    }
+
+    public void EnterThrowObjectMode()
+    {
+        if (CurrentState == GameState.CarryingExplosive)
+        {
+            SwitchState(GameState.ThrowObject);
+        }
+    }
+
+    public void EnterCarryingExplosiveMode()
+    {
+        if (CurrentState == GameState.Exploration)
+        {
+            SwitchState(GameState.CarryingExplosive);
         }
     }
     

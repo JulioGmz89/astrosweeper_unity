@@ -870,6 +870,9 @@ MonoBehaviour:
   defaultColor: {r: 0.43137255, g: 0.8392157, b: 0.8352941, a: 1}
   flaggedColor: {r: 0, g: 1, b: 1, a: 1}
   trapColor: {r: 1, g: 0, b: 0, a: 1}
+  mineralPrefab: {fileID: 6151989773130266523, guid: 942e9ead58827f1458cae0d0dcdfb280, type: 3}
+  disarmedTrapPrefab: {fileID: 3202705609614651514, guid: 1c646704cf56f1a439120c97e1d77294, type: 3}
+  mineralCollectiblePrefab: {fileID: 7194570165873570679, guid: 785f0afa1a4f1d648bde78dd9c09372e, type: 3}
   axialCoords: {x: 0, y: 0}
   isTrap: 0
   isRevealed: 0
