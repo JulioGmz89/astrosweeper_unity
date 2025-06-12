@@ -20,6 +20,9 @@ public class PlayerController : MonoBehaviour
     [Header("Visuals")]
     [SerializeField] private GameObject holoCone;
     [SerializeField] private GameObject carriedExplosiveVisual; // Visual del explosivo que carga el jugador
+    [SerializeField] private GameObject explosiveProjectilePrefab; // Prefab for the thrown explosive
+    [SerializeField] private float throwDuration = 1.0f; // Duration of the throw
+    [SerializeField] private float throwArcHeight = 2.0f; // Arc height of the throw
 
     // --- Referencias de Componentes ---
     private PlayerMovement playerMovement;
@@ -277,22 +280,48 @@ public class PlayerController : MonoBehaviour
     {
         float distance = Vector3.Distance(transform.position, targetTile.transform.position);
         if (distance > throwRange)
-        {
+        { 
             Debug.LogWarning($"Target {targetTile.name} is out of range! ({distance:F1}m > {throwRange}m)");
             // Future: Add visual/sound feedback to the player
             return;
         }
 
-        Debug.Log($"Throwing explosive at {targetTile.name}.");
-        if (targetTile.hasMineral)
+        StartCoroutine(ThrowAndExplodeCoroutine(targetTile));
+    }
+
+    private System.Collections.IEnumerator ThrowAndExplodeCoroutine(HexTile targetTile)
+    {
+        Vector3 startPosition = carriedExplosiveVisual.transform.position;
+
+        // Switch to exploration so player can move. This will also hide the carried visual via HandleGameStateChange.
+        GameManager.Instance.EnterExplorationMode();
+
+        GameObject projectileGO = Instantiate(explosiveProjectilePrefab, startPosition, Quaternion.identity);
+        ExplosiveProjectile projectile = projectileGO.GetComponent<ExplosiveProjectile>();
+
+        if (projectile != null)
         {
-            targetTile.ExtractMineral();
+            // Wait for the projectile to reach its destination
+            yield return projectile.TravelToTarget(targetTile.transform.position, throwDuration, throwArcHeight);
+
+            // Now that it has arrived, trigger the explosion/extraction
+            Debug.Log($"Explosive landed on {targetTile.name}.");
+            if (targetTile.hasMineral)
+            {
+                targetTile.ExtractMineral();
+            }
+            else
+            {
+                Debug.Log("...but no mineral was on the target tile.");
+            }
+
+            // Clean up the projectile
+            Destroy(projectileGO);
         }
         else
         {
-            Debug.Log("Threw explosive, but no mineral was on the target tile.");
+            Debug.LogError("Explosive projectile prefab is missing the ExplosiveProjectile script!");
         }
-        GameManager.Instance.EnterExplorationMode();
     }
 
     private void OnTriggerEnter(Collider other)

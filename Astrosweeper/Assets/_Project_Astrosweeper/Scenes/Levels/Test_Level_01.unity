@@ -491,6 +491,10 @@ PrefabInstance:
       propertyPath: carriedExplosiveVisual
       value: 
       objectReference: {fileID: 592056396}
+    - target: {fileID: 4736629785226461007, guid: 05b926eeed9a6ff4b8e01c22badca291, type: 3}
+      propertyPath: explosiveProjectilePrefab
+      value: 
+      objectReference: {fileID: 456487052918316408, guid: 348029de7e6ee7744a4b4da424b78ed1, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
