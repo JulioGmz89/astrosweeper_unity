@@ -1,29 +1,31 @@
 using UnityEngine;
 
-// Definimos la estructura de datos para asociar un valor a un color.
-// [System.Serializable] permite que esta estructura aparezca y sea editable en el Inspector de Unity.
+// La clase que define la asociación entre un valor y un color.
+// System.Serializable permite que la editemos en el Inspector.
 [System.Serializable]
 public class HeatColor
 {
     public int value;
+
+    // --- ¡AQUÍ ESTÁ EL CAMBIO! ---
+    // Este atributo le dice a Unity que use el selector de color HDR para esta variable.
+    // El primer 'true' muestra el canal Alfa, el segundo 'true' activa el modo HDR.
+    [ColorUsage(true, true)]
     public Color color;
 }
 
 public class HeatMapController : MonoBehaviour
 {
-    // Declaramos el array público. Esta es la variable que no encontraba el error CS0103.
-    // Al ser pública y usar la clase [System.Serializable], podrás rellenar este array desde el Inspector de Unity.
+    // El array público que rellenarás en el Inspector con tus colores HDR.
     public HeatColor[] heatColors;
 
     /// <summary>
     /// Devuelve el color asociado a un valor de peligro específico.
     /// </summary>
-    /// <param name="value">El número de trampas adyacentes (dangerValue).</param>
+    /// <param name="value">El número de trampas adyacentes.</param>
     /// <returns>El color correspondiente del mapa de calor.</returns>
     public Color GetColorForValue(int value)
     {
-        // Recorremos la lista de colores que definiste en el Inspector.
-        // Ahora 'heatColors' y 'HeatColor' existen en este contexto.
         foreach (HeatColor heatColor in heatColors)
         {
             if (heatColor.value == value)
@@ -32,8 +34,7 @@ public class HeatMapController : MonoBehaviour
             }
         }
         
-        // Si no se encuentra un color específico para ese valor,
-        // devolvemos un color por defecto (blanco) para indicar un estado no definido.
+        // Devolvemos un color por defecto si no se encuentra el valor.
         return Color.white;
     }
 }

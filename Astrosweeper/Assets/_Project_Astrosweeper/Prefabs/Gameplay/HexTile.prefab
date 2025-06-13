@@ -9,7 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4659685799769981151}
-  m_Layer: 0
+  - component: {fileID: 5771075586917194892}
+  - component: {fileID: 3867363689083249239}
+  m_Layer: 7
   m_Name: HexTile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26,12 +28,85 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -1.424, y: 0, z: 0.26481}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.83206, y: 0.83206, z: 0.83206}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4593905961363240361}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!23 &5771075586917194892
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2563116143407051585}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: ab7c7abe94c94154ba8ea25f5a8580d5, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &3867363689083249239
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2563116143407051585}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 950209b197e80b841802538ec47aff25, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  colorPropertyName: _Color
+  defaultColor: {r: 0.8627451, g: 1.6784314, b: 1.6705883, a: 1}
+  flaggedColor: {r: 0.78000003, g: 1.5, b: 1.5, a: 1}
+  trapColor: {r: 1.6603774, g: 0.3211107, b: 0.3211107, a: 1}
+  mineralPrefab: {fileID: 3653952280083137150, guid: 58c6ab1791e4c3e4fa70c4e1f1b54668, type: 3}
+  disarmedTrapPrefab: {fileID: 9007010093588732088, guid: 45f135c50228bc84ebc539b2d145be46, type: 3}
+  mineralCollectiblePrefab: {fileID: 5584644469462266752, guid: 9512d73a438c4ae4fbb028a1e5111f04, type: 3}
+  scaleControllerName: HexTile_Scale_Controller
+  innerAnimatorName: Hextile_Innner_01
+  outerAnimatorName: Hextile_Outer_01
+  flagAnimatorName: Hextile_Flag_01
+  axialCoords: {x: 0, y: 0}
+  isTrap: 0
+  isRevealed: 0
+  dangerValue: 0
+  selectedIntensity: 1.4
 --- !u!1 &6370891518630236816
 GameObject:
   m_ObjectHideFlags: 0
@@ -41,7 +116,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4593905961363240361}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: HexTile_Scale_Controller
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -124,7 +199,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 8393a6f9ff746774bb7c8a764282eb86, type: 3}
       propertyPath: m_Layer
-      value: 0
+      value: 7
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -133,6 +208,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8393a6f9ff746774bb7c8a764282eb86, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8109988649073496472}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8393a6f9ff746774bb7c8a764282eb86, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3480271111786135312}
   m_SourcePrefab: {fileID: 100100000, guid: 8393a6f9ff746774bb7c8a764282eb86, type: 3}
 --- !u!4 &1291940902459450153 stripped
 Transform:
@@ -166,6 +244,28 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!64 &3480271111786135312
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1920281439183894931}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 887235010779462734, guid: 8393a6f9ff746774bb7c8a764282eb86, type: 3}
 --- !u!1001 &5279471356930944272
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -232,11 +332,11 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: ab7c7abe94c94154ba8ea25f5a8580d5, type: 2}
     - target: {fileID: 919132149155446097, guid: 04af1509e8ddb9147b3e268b13bef933, type: 3}
       propertyPath: m_Name
-      value: Hextile_Inner_01
+      value: Hextile_Innner_01
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 04af1509e8ddb9147b3e268b13bef933, type: 3}
       propertyPath: m_Layer
-      value: 0
+      value: 7
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -329,14 +429,18 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: b17dbd68b2d600045980d9bcdd3d0b8f, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: ab7c7abe94c94154ba8ea25f5a8580d5, type: 2}
+      objectReference: {fileID: 2100000, guid: e77760d7b08f1fb4e8447e43e799aba1, type: 2}
     - target: {fileID: 919132149155446097, guid: b17dbd68b2d600045980d9bcdd3d0b8f, type: 3}
       propertyPath: m_Name
       value: Hextile_Flag_01
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: b17dbd68b2d600045980d9bcdd3d0b8f, type: 3}
       propertyPath: m_Layer
-      value: 0
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: b17dbd68b2d600045980d9bcdd3d0b8f, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
