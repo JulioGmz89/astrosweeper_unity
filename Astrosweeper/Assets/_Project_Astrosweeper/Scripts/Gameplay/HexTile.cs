@@ -23,7 +23,7 @@ public class HexTile : MonoBehaviour
     [SerializeField] private string outerAnimatorName = "Hextile_Outer_01";
     [SerializeField] private string flagAnimatorName = "Hextile_Flag_01";
 
-    // Propiedades de la tesela
+    // Propiedades del tile
     public Vector2Int axialCoords;
     public bool isTrap = false;
     public bool isRevealed = false;
